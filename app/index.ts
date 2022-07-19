@@ -15,6 +15,7 @@ const account = new PrivkeyAccount(
   PRIVKEY
 );
 const rpc = new RPCClient(RPCURL);
+const client = new Client(RPCURL);
 
 app.use(express.json());
 
@@ -35,7 +36,6 @@ app.get("/", async (req: Request, res: Response) => {
       nativeAddress = fromHexAddress(address, network.toLowerCase());
     }
 
-    const client = new Client(RPCURL);
     const txId = await client.sendFrom(
       account,
       [
@@ -47,6 +47,37 @@ app.get("/", async (req: Request, res: Response) => {
       { feePerKb: 1000 }
     );
     return res.send({ txId });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).send({ message: (<any>err).message });
+  }
+});
+
+app.post("/request", async (req: Request, res: Response) => {
+  let { asset, address } = req.body;
+  try {
+    let nativeAddress = address;
+
+    // check hex address
+    address = (<string>address).replace("0x", "");
+    if (address.length === 40) {
+      nativeAddress = fromHexAddress(address, network.toLowerCase());
+    }
+    if (asset === "FVM") {
+      const txId = await client.sendFrom(
+        account,
+        [
+          {
+            to: nativeAddress as string,
+            value: 100 * 1e8,
+          },
+        ],
+        { feePerKb: 1000 }
+      );
+      return res.status(201).send({ tx: txId });
+    }
+
+    return res.status(404).send({ message: "Asset not found!" });
   } catch (err) {
     console.error(err);
     return res.status(500).send({ message: (<any>err).message });
