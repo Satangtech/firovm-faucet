@@ -16,7 +16,6 @@
       "type": "node",
       "request": "attach",
       "name": "Debug Faucet",
-      "skipFiles": ["<node_internals>/**"],
       "remoteRoot": "/app/dist",
       "localRoot": "${workspaceFolder}/app/dist",
       "port": 9229,
