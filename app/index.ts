@@ -1,6 +1,6 @@
 import express, { Express, Request, Response } from "express";
 import { fromHexAddress, getNetwork } from "./utils";
-import { Context, PrivkeyAccount, Client } from "firovm-sdk";
+import { Context, PrivkeyAccount, Client, RPCClient } from "firovm-sdk";
 import "dotenv/config";
 
 const app: Express = express();
@@ -9,6 +9,12 @@ const bind = process.env.BIND || "0.0.0.0";
 const network = process.env.NETWORK || "Regtest"; // ["Mainnet", "Testnet", "Regtest"]
 const RPCURL = process.env.RPCURL || "http://guest:guest@127.0.0.1:8545";
 const PRIVKEY = process.env.PRIVKEY || "";
+
+const account = new PrivkeyAccount(
+  new Context().withNetwork(getNetwork(network.toLowerCase())),
+  PRIVKEY
+);
+const rpc = new RPCClient(RPCURL);
 
 app.use(express.json());
 
@@ -29,12 +35,7 @@ app.get("/", async (req: Request, res: Response) => {
       nativeAddress = fromHexAddress(address, network.toLowerCase());
     }
 
-    const account = new PrivkeyAccount(
-      new Context().withNetwork(getNetwork(network.toLowerCase())),
-      PRIVKEY
-    );
     const client = new Client(RPCURL);
-
     const txId = await client.sendFrom(
       account,
       [
@@ -46,6 +47,24 @@ app.get("/", async (req: Request, res: Response) => {
       { feePerKb: 1000 }
     );
     return res.send({ txId });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).send({ message: (<any>err).message });
+  }
+});
+
+app.get("/assets", async (req: Request, res: Response) => {
+  try {
+    const address = account.address().toString();
+    const { result } = await rpc.getAddressBalance(address);
+    const assets = [
+      {
+        name: "FVM",
+        balance: result.balance / 1e8,
+        address,
+      },
+    ];
+    res.send(assets);
   } catch (err) {
     console.error(err);
     return res.status(500).send({ message: (<any>err).message });
