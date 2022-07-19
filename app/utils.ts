@@ -1,9 +1,4 @@
-Object.defineProperty(global, "_bitcore", {
-  get() {
-    return undefined;
-  },
-  set() {},
-});
+import { Network } from "firovm-sdk";
 const { Networks, Address } = require("fvmcore-lib");
 
 export const fromHexAddress = (hash: string, network: string) => {
@@ -12,4 +7,10 @@ export const fromHexAddress = (hash: string, network: string) => {
     Networks.get(network)
   );
   return address.toString();
+};
+
+export const getNetwork = (network: string) => {
+  if (network === "Testnet") return Network.Testnet;
+  if (network === "Mainnet") return Network.Mainnet;
+  return Network.Regtest;
 };
