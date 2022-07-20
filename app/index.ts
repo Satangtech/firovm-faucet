@@ -1,6 +1,7 @@
 import express, { Express, Request, Response } from "express";
 import { fromHexAddress, getNetwork } from "./utils";
 import { Context, PrivkeyAccount, Client, RPCClient } from "firovm-sdk";
+import tokens from "./tokens.json";
 import "dotenv/config";
 
 const app: Express = express();
@@ -87,14 +88,40 @@ app.post("/request", async (req: Request, res: Response) => {
 app.get("/assets", async (req: Request, res: Response) => {
   try {
     const address = account.address().toString();
-    const { result } = await rpc.getAddressBalance(address);
-    const assets = [
-      {
-        name: "FVM",
-        balance: result.balance / 1e8,
-        address,
-      },
-    ];
+    const assets = [];
+
+    for (let tokenName in tokens) {
+      type TypeTokens = keyof typeof tokens;
+      const token = tokens[tokenName as TypeTokens];
+      const tokenAddress = token.address.replace("0x", "");
+
+      if (tokenAddress === "") {
+        const { result } = await rpc.getAddressBalance(address);
+        assets.push({
+          name: tokenName,
+          balance: result.balance / 1e8,
+          address,
+        });
+      } else {
+        const { result, error } = await rpc.getTokenBalance(
+          tokenAddress,
+          address
+        );
+        if (error) {
+          assets.push({
+            name: tokenName,
+            error,
+          });
+        } else {
+          assets.push({
+            name: tokenName,
+            balance: result,
+            address,
+          });
+        }
+      }
+    }
+
     res.send(assets);
   } catch (err) {
     console.error(err);
