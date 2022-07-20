@@ -10,7 +10,7 @@ export const fromHexAddress = (hash: string, network: string) => {
 };
 
 export const getNetwork = (network: string) => {
-  if (network === "Testnet") return Network.Testnet;
-  if (network === "Mainnet") return Network.Mainnet;
+  if (network === "testnet") return Network.Testnet;
+  if (network === "mainnet") return Network.Mainnet;
   return Network.Regtest;
 };

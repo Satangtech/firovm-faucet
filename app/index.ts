@@ -5,15 +5,20 @@ import tokens from "./tokens.json";
 import "dotenv/config";
 import { isReachLimit, setReachLimit } from "./models/reachLimit";
 
-const app: Express = express();
 const port = Number(process.env.PORT) || 8123;
 const bind = process.env.BIND || "0.0.0.0";
-const network = process.env.NETWORK || "Regtest"; // ["Mainnet", "Testnet", "Regtest"]
+const NETWORK = process.env.NETWORK || "regtest"; // ["mainnet", "testnet", "regtest"]
 const RPCURL = process.env.RPCURL || "http://guest:guest@127.0.0.1:8545";
-const PRIVKEY = process.env.PRIVKEY || "";
+const PRIVKEY = process.env.PRIVKEY;
+const FAUCET_AMOUNT = Number(process.env.FAUCET_AMOUNT) || 100;
 
+if (PRIVKEY === "") {
+  throw Error("Private key is not provided!");
+}
+
+const app: Express = express();
 const account = new PrivkeyAccount(
-  new Context().withNetwork(getNetwork(network.toLowerCase())),
+  new Context().withNetwork(getNetwork(NETWORK)),
   PRIVKEY
 );
 const rpc = new RPCClient(RPCURL);
@@ -28,10 +33,10 @@ app.post("/request", async (req: Request, res: Response) => {
     let nativeAddress = address;
     address = (<string>address).replace("0x", "");
     if (address.length === 40) {
-      nativeAddress = fromHexAddress(address, network.toLowerCase());
+      nativeAddress = fromHexAddress(address, NETWORK);
     }
-    const ip = req.headers["x-forwarded-for"] || req.socket.remoteAddress;
 
+    const ip = req.headers["x-forwarded-for"] || req.socket.remoteAddress;
     const { limit, fields } = await isReachLimit(<string>ip, nativeAddress);
     if (limit === "address") {
       return res.status(400).send({
@@ -55,7 +60,7 @@ app.post("/request", async (req: Request, res: Response) => {
         [
           {
             to: nativeAddress as string,
-            value: 100 * 1e8,
+            value: FAUCET_AMOUNT * 1e8,
           },
         ],
         { feePerKb: 1000 }
@@ -63,7 +68,6 @@ app.post("/request", async (req: Request, res: Response) => {
       await setReachLimit(<string>ip, nativeAddress);
       return res.status(201).send({ tx: txId });
     }
-
     if (token && token.address !== "") {
       const txId = await client.tokenTransfer(
         account,
