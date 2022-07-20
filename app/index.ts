@@ -60,7 +60,7 @@ app.post("/request", async (req: Request, res: Response) => {
         [
           {
             to: nativeAddress as string,
-            value: FAUCET_AMOUNT * 1e8,
+            value: FAUCET_AMOUNT * token.decimal,
           },
         ],
         { feePerKb: 1000 }
@@ -73,7 +73,7 @@ app.post("/request", async (req: Request, res: Response) => {
         account,
         token.address,
         nativeAddress,
-        BigInt(1e18)
+        BigInt(FAUCET_AMOUNT * token.decimal)
       );
       await setReachLimit(<string>ip, nativeAddress);
       return res.status(201).send({ tx: txId });
