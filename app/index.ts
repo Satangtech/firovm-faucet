@@ -3,6 +3,7 @@ import { fromHexAddress, getNetwork } from "./utils";
 import { Context, PrivkeyAccount, Client, RPCClient } from "firovm-sdk";
 import tokens from "./tokens.json";
 import "dotenv/config";
+import { isReachLimit, setReachLimit } from "./models/reachLimit";
 
 const app: Express = express();
 const port = Number(process.env.PORT) || 8123;
@@ -21,49 +22,30 @@ type TypeTokens = keyof typeof tokens;
 
 app.use(express.json());
 
-app.get("/", async (req: Request, res: Response) => {
-  let { address = "" } = req.query;
-  try {
-    if (address === "") {
-      return res.send({
-        message: "Invalid Input! Ex: /?address=abc",
-        address,
-      });
-    }
-    let nativeAddress = address;
-
-    // check hex address
-    address = (<string>address).replace("0x", "");
-    if (address.length === 40) {
-      nativeAddress = fromHexAddress(address, network.toLowerCase());
-    }
-
-    const txId = await client.sendFrom(
-      account,
-      [
-        {
-          to: nativeAddress as string,
-          value: 100 * 1e8,
-        },
-      ],
-      { feePerKb: 1000 }
-    );
-    return res.send({ txId });
-  } catch (err) {
-    console.error(err);
-    return res.status(500).send({ message: (<any>err).message });
-  }
-});
-
 app.post("/request", async (req: Request, res: Response) => {
   let { asset, address } = req.body;
   try {
     let nativeAddress = address;
-
-    // check hex address
     address = (<string>address).replace("0x", "");
     if (address.length === 40) {
       nativeAddress = fromHexAddress(address, network.toLowerCase());
+    }
+    const ip = req.headers["x-forwarded-for"] || req.socket.remoteAddress;
+
+    const { limit, fields } = await isReachLimit(<string>ip, nativeAddress);
+    if (limit === "address") {
+      return res.status(400).send({
+        id: "REACH_LIMIT_ADDRESS",
+        reason: "the address reach limit",
+        fields,
+      });
+    }
+    if (limit === "ip") {
+      return res.status(400).send({
+        id: "REACH_LIMIT_IP",
+        reason: "the IP reach limit",
+        fields,
+      });
     }
 
     const token = tokens[asset as TypeTokens];
@@ -78,6 +60,7 @@ app.post("/request", async (req: Request, res: Response) => {
         ],
         { feePerKb: 1000 }
       );
+      await setReachLimit(<string>ip, nativeAddress);
       return res.status(201).send({ tx: txId });
     }
 
@@ -88,6 +71,7 @@ app.post("/request", async (req: Request, res: Response) => {
         nativeAddress,
         BigInt(1e18)
       );
+      await setReachLimit(<string>ip, nativeAddress);
       return res.status(201).send({ tx: txId });
     }
 
