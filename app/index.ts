@@ -17,6 +17,7 @@ const account = new PrivkeyAccount(
 );
 const rpc = new RPCClient(RPCURL);
 const client = new Client(RPCURL);
+type TypeTokens = keyof typeof tokens;
 
 app.use(express.json());
 
@@ -64,7 +65,9 @@ app.post("/request", async (req: Request, res: Response) => {
     if (address.length === 40) {
       nativeAddress = fromHexAddress(address, network.toLowerCase());
     }
-    if (asset === "FVM") {
+
+    const token = tokens[asset as TypeTokens];
+    if (token && token.address === "") {
       const txId = await client.sendFrom(
         account,
         [
@@ -74,6 +77,16 @@ app.post("/request", async (req: Request, res: Response) => {
           },
         ],
         { feePerKb: 1000 }
+      );
+      return res.status(201).send({ tx: txId });
+    }
+
+    if (token && token.address !== "") {
+      const txId = await client.tokenTransfer(
+        account,
+        token.address,
+        nativeAddress,
+        BigInt(1e18)
       );
       return res.status(201).send({ tx: txId });
     }
@@ -91,7 +104,6 @@ app.get("/assets", async (req: Request, res: Response) => {
     const assets = [];
 
     for (let tokenName in tokens) {
-      type TypeTokens = keyof typeof tokens;
       const token = tokens[tokenName as TypeTokens];
       const tokenAddress = token.address.replace("0x", "");
 
