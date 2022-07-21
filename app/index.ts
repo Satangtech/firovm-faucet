@@ -55,7 +55,16 @@ app.post("/request", async (req: Request, res: Response) => {
     }
 
     const token = tokens[asset as TypeTokens];
-    if (token && token.address === "") {
+    if (token && token.address !== "") {
+      const txId = await client.tokenTransfer(
+        account,
+        token.address,
+        nativeAddress,
+        BigInt(FAUCET_AMOUNT * token.decimal)
+      );
+      await setReachLimit(<string>ip, nativeAddress);
+      return res.status(201).send({ tx: txId });
+    } else {
       const txId = await client.sendFrom(
         account,
         [
@@ -69,18 +78,6 @@ app.post("/request", async (req: Request, res: Response) => {
       await setReachLimit(<string>ip, nativeAddress);
       return res.status(201).send({ tx: txId });
     }
-    if (token && token.address !== "") {
-      const txId = await client.tokenTransfer(
-        account,
-        token.address,
-        nativeAddress,
-        BigInt(FAUCET_AMOUNT * token.decimal)
-      );
-      await setReachLimit(<string>ip, nativeAddress);
-      return res.status(201).send({ tx: txId });
-    }
-
-    return res.status(404).send({ message: "Asset not found!" });
   } catch (err) {
     console.error(err);
     return res.status(500).send({ message: (<any>err).message });
