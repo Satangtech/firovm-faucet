@@ -6,8 +6,8 @@ import "dotenv/config";
 import { CacheTimes, isReachLimit, setReachLimit } from "./models/reachLimit";
 import { isExpire, setCache } from "./models/cache";
 
-const port = Number(process.env.PORT) || 8123;
-const bind = process.env.BIND || "0.0.0.0";
+const PORT = Number(process.env.PORT) || 8123;
+const BIND = process.env.BIND || "0.0.0.0";
 const NETWORK = process.env.NETWORK || "regtest"; // ["mainnet", "testnet", "regtest"]
 const RPCURL = process.env.RPCURL || "http://guest:guest@127.0.0.1:8545";
 const PRIVKEY = process.env.PRIVKEY;
@@ -134,6 +134,6 @@ app.get("/assets", async (req: Request, res: Response) => {
   }
 });
 
-app.listen(port, bind, async () => {
-  console.log(`[server]: Server is running at ${bind}:${port}`);
+app.listen(PORT, BIND, async () => {
+  console.log(`[server]: Server is running at ${BIND}:${PORT}`);
 });
