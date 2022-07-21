@@ -3,7 +3,8 @@ import { fromHexAddress, getNetwork } from "./utils";
 import { Context, PrivkeyAccount, Client, RPCClient } from "firovm-sdk";
 import tokens from "./tokens.json";
 import "dotenv/config";
-import { isReachLimit, setReachLimit } from "./models/reachLimit";
+import { CacheTimes, isReachLimit, setReachLimit } from "./models/reachLimit";
+import { isExpire, setCache } from "./models/cache";
 
 const port = Number(process.env.PORT) || 8123;
 const bind = process.env.BIND || "0.0.0.0";
@@ -90,6 +91,12 @@ app.get("/assets", async (req: Request, res: Response) => {
   try {
     const address = account.address().toString();
     const assets = [];
+    const cacheKey = "/assets";
+
+    const { expire, cache } = await isExpire(cacheKey);
+    if (!expire && cache) {
+      return res.send(cache.value);
+    }
 
     for (let tokenName in tokens) {
       const token = tokens[tokenName as TypeTokens];
@@ -122,6 +129,7 @@ app.get("/assets", async (req: Request, res: Response) => {
       }
     }
 
+    await setCache(cacheKey, assets, 15 * CacheTimes.Minute);
     res.send(assets);
   } catch (err) {
     console.error(err);
