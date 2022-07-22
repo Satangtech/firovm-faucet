@@ -12,6 +12,8 @@ const NETWORK = process.env.NETWORK || "regtest"; // ["mainnet", "testnet", "reg
 const RPCURL = process.env.RPCURL || "http://guest:guest@127.0.0.1:8545";
 const PRIVKEY = process.env.PRIVKEY;
 const FAUCET_AMOUNT = Number(process.env.FAUCET_AMOUNT) || 100;
+const NATIVE_TOKEN_NAME = process.env.NATIVE_TOKEN_NAME || "FVM";
+const CACHE_TIMES_MINUTE = Number(process.env.CACHE_TIMES_MINUTE) || 15;
 
 if (PRIVKEY === "") {
   throw Error("Private key is not provided!");
@@ -70,7 +72,7 @@ app.post("/request", async (req: Request, res: Response) => {
         [
           {
             to: nativeAddress as string,
-            value: FAUCET_AMOUNT * token.decimal,
+            value: FAUCET_AMOUNT * 1e8,
           },
         ],
         { feePerKb: 1000 }
@@ -86,47 +88,44 @@ app.post("/request", async (req: Request, res: Response) => {
 
 app.get("/assets", async (req: Request, res: Response) => {
   try {
-    const address = account.address().toString();
-    const assets = [];
     const cacheKey = "/assets";
-
     const { expire, cache } = await isExpire(cacheKey);
     if (!expire && cache) {
       return res.send(cache.value);
     }
 
+    const address = account.address().toString();
+    const { result } = await rpc.getAddressBalance(address);
+    const assets: any = [
+      {
+        name: NATIVE_TOKEN_NAME,
+        balance: result.balance / 1e8,
+        address,
+      },
+    ];
+
     for (let tokenName in tokens) {
       const token = tokens[tokenName as TypeTokens];
       const tokenAddress = token.address.replace("0x", "");
-
-      if (tokenAddress === "") {
-        const { result } = await rpc.getAddressBalance(address);
+      const { result, error } = await rpc.getTokenBalance(
+        tokenAddress,
+        address
+      );
+      if (error) {
         assets.push({
           name: tokenName,
-          balance: result.balance / 1e8,
-          address,
+          error,
         });
       } else {
-        const { result, error } = await rpc.getTokenBalance(
-          tokenAddress,
-          address
-        );
-        if (error) {
-          assets.push({
-            name: tokenName,
-            error,
-          });
-        } else {
-          assets.push({
-            name: tokenName,
-            balance: result,
-            address,
-          });
-        }
+        assets.push({
+          name: tokenName,
+          balance: result,
+          address,
+        });
       }
     }
 
-    await setCache(cacheKey, assets, 15 * CacheTimes.Minute);
+    await setCache(cacheKey, assets, CACHE_TIMES_MINUTE * CacheTimes.Minute);
     res.send(assets);
   } catch (err) {
     console.error(err);
