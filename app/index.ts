@@ -121,6 +121,8 @@ app.get("/assets", async (req: Request, res: Response) => {
           name: tokenName,
           balance: result,
           address,
+          symbol: token.symbol,
+          logo: token.logo,
         });
       }
     }
