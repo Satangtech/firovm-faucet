@@ -1,5 +1,8 @@
 import { ObjectId } from "mongodb";
 import { database } from "./db";
+import "dotenv/config";
+
+const REACH_LIMIT_HOUR = Number(process.env.REACH_LIMIT_HOUR) || 24;
 
 export enum CacheTimes {
   None = 0,
@@ -24,7 +27,7 @@ export const reachLimitCollection =
 export const setReachLimit = async (ip: string, address: string) => {
   await reachLimitCollection.updateOne(
     { ip, address },
-    { $set: { expireTime: Date.now() + CacheTimes.Day } },
+    { $set: { expireTime: Date.now() + REACH_LIMIT_HOUR * CacheTimes.Hour } },
     { upsert: true }
   );
 };
