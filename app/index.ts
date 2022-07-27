@@ -5,6 +5,7 @@ import tokens from "./tokens.json";
 import "dotenv/config";
 import { CacheTimes, isReachLimit, setReachLimit } from "./models/reachLimit";
 import { isExpire, setCache } from "./models/cache";
+import cors from "cors";
 
 const PORT = Number(process.env.PORT) || 8123;
 const BIND = process.env.BIND || "0.0.0.0";
@@ -28,6 +29,7 @@ const rpc = new RPCClient(RPCURL);
 const client = new Client(RPCURL);
 type TypeTokens = keyof typeof tokens;
 
+app.use(cors());
 app.use(express.json());
 
 app.post("/request", async (req: Request, res: Response) => {
