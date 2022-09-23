@@ -4,11 +4,9 @@ services:
   faucet:
     build: .
     restart: always
-    command: bash -c "npm i && npx tsc && npm run start"
     stdin_open: true
     tty: true
     volumes:
-      - ./app:/app
       - ./app/tokens.json:/app/tokens.json
     ports:
       - 8123:8123
