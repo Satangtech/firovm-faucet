@@ -1,0 +1,23 @@
+version: '3'
+
+services:
+  faucet:
+    image: node:16.3.0-alpine
+    restart: always
+    working_dir: /app
+    stdin_open: true
+    tty: true
+    command: sh
+    volumes:
+      - ./:/app
+    ports:
+      - 3000:3000
+      - 9229:9229
+
+  mongo:
+    image: mongo
+    ports:
+      - 27017:27017
+    volumes:
+      - ./.mongo/db:/data/db
+    command: --profile=1 --slowms=20 # for operations that take longer than (ms)
