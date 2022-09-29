@@ -1,4 +1,5 @@
 import { HttpStatus, INestApplication } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
 import { Test } from '@nestjs/testing';
 import mongoose, { Model } from 'mongoose';
 import * as request from 'supertest';
@@ -22,11 +23,12 @@ describe('Assets', () => {
   const databaseProviders = {
     provide: 'DATABASE_CONNECTION',
     useFactory: (): Promise<typeof mongoose> =>
-      mongoose.connect('mongodb://mongo/faucet-test'),
+      mongoose.connect(process.env.MONGO_URL_TEST),
   };
 
   beforeAll(async () => {
     const moduleAsset = await Test.createTestingModule({
+      imports: [ConfigModule.forRoot()],
       controllers: [AssetsController],
       providers: [AssetsService, ...assetsProviders, databaseProviders],
     }).compile();
