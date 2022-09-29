@@ -24,7 +24,9 @@ export class AssetsService {
   }
 
   async update(id: string, updateAssetDto: UpdateAssetDto): Promise<Asset> {
-    return this.assetModel.findByIdAndUpdate(id, updateAssetDto);
+    return this.assetModel.findByIdAndUpdate(id, updateAssetDto, {
+      new: true,
+    });
   }
 
   async remove(id: string): Promise<Asset> {
