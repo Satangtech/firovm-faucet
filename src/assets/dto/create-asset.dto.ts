@@ -4,9 +4,6 @@ export class CreateAssetDto {
   @IsString()
   readonly name: string;
 
-  @IsNumber()
-  readonly balance: number;
-
   @IsString()
   readonly address: string;
 
