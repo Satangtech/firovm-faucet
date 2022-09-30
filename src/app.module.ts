@@ -21,6 +21,7 @@ import { AssetsModule } from './assets/assets.module';
           .valid('regtest', 'testnet', 'mainnet')
           .default('regtest'),
         PRIVKEY: Joi.string().required(),
+        CACHE_TIMES_MINUTE: Joi.number().default(15),
       }),
     }),
   ],

@@ -1,10 +1,11 @@
-import { ValidationPipe } from '@nestjs/common';
+import { Logger, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 
 import { AppModule } from './app.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  const logger = new Logger(AppModule.name);
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
@@ -13,7 +14,7 @@ async function bootstrap() {
     }),
   );
   await app.listen(process.env.PORT, process.env.BIND, () => {
-    console.log(`Server is running on ${process.env.BIND}:${process.env.PORT}`);
+    logger.log(`Server is running on ${process.env.BIND}:${process.env.PORT}`);
   });
 }
 bootstrap();
