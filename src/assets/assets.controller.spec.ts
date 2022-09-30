@@ -1,3 +1,4 @@
+import { ConfigModule } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
 import { AssetsController } from './assets.controller';
 import { AssetsService } from './assets.service';
@@ -9,6 +10,7 @@ describe('AssetsController', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
+      imports: [ConfigModule],
       controllers: [AssetsController],
       providers: [
         {
@@ -46,7 +48,6 @@ describe('AssetsController', () => {
     it('should create a new asset', async () => {
       const createAssetDto: CreateAssetDto = {
         name: 'name1',
-        balance: 100,
         address: 'address1',
         symbol: 'symbol1',
         logo: 'logo1',

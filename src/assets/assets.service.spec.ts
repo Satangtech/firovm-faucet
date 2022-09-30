@@ -1,6 +1,10 @@
+import { CacheModule } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Model } from 'mongoose';
 
+import { FiroRpcModule } from '../firo-rpc/firo-rpc.module';
+import { FiroRpcService } from '../firo-rpc/firo-rpc.service';
 import { AssetsService } from './assets.service';
 import { Asset } from './interfaces/asset.interface';
 
@@ -15,12 +19,12 @@ const mockAsset = {
 
 const assetsArray = [
   {
-    name: 'asset1',
+    name: 'asset native',
     balance: 100,
-    address: 'address1',
+    address: '',
     symbol: 'symbol1',
     logo: 'logo1',
-    decimal: 1e18,
+    decimal: 1e8,
   },
   {
     name: 'asset2',
@@ -35,9 +39,11 @@ const assetsArray = [
 describe('AssetService', () => {
   let service: AssetsService;
   let model: Model<Asset>;
+  let firoRpcService: FiroRpcService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
+      imports: [ConfigModule, CacheModule.register(), FiroRpcModule],
       providers: [
         AssetsService,
         {
@@ -45,6 +51,7 @@ describe('AssetService', () => {
           useValue: {
             new: jest.fn().mockResolvedValue(mockAsset),
             constructor: jest.fn().mockResolvedValue(mockAsset),
+            findOneAndUpdate: jest.fn(),
             find: jest.fn(),
             create: jest.fn(),
             save: jest.fn(),
@@ -56,9 +63,32 @@ describe('AssetService', () => {
 
     service = module.get(AssetsService);
     model = module.get<Model<Asset>>('ASSET_MODEL');
+    firoRpcService = module.get<FiroRpcService>(FiroRpcService);
   });
 
   it('should be defined', () => {
     expect(service).toBeDefined();
+  });
+
+  it('should return all assets', async () => {
+    jest.spyOn(model, 'find').mockReturnValue({
+      exec: jest.fn().mockResolvedValueOnce(assetsArray),
+    } as any);
+
+    jest
+      .spyOn(model, 'findOneAndUpdate')
+      .mockResolvedValueOnce(assetsArray[0] as any)
+      .mockResolvedValueOnce(assetsArray[1] as any);
+
+    jest
+      .spyOn(firoRpcService, 'getNativeBalance')
+      .mockReturnValue(Promise.resolve(100));
+
+    jest
+      .spyOn(firoRpcService, 'getAssetBalance')
+      .mockReturnValue(Promise.resolve(100));
+
+    const assets = await service.findAll();
+    expect(assets).toEqual(assetsArray);
   });
 });

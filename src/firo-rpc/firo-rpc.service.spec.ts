@@ -1,3 +1,4 @@
+import { ConfigModule } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
 import { FiroRpcService } from './firo-rpc.service';
 
@@ -6,6 +7,7 @@ describe('FiroRpcService', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
+      imports: [ConfigModule],
       providers: [FiroRpcService],
     }).compile();
 
