@@ -5,7 +5,7 @@ export class CreateAssetDto {
   readonly name: string;
 
   @IsString()
-  readonly address: string;
+  readonly address: string; // Blank for native token
 
   @IsString()
   readonly symbol: string;
