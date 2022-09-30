@@ -1,4 +1,4 @@
-FROM node:16.3.0-alpine
+FROM node:16
 WORKDIR /app
 COPY app/. .
 RUN npm install && npx tsc
