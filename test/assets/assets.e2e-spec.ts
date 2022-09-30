@@ -1,4 +1,4 @@
-import { HttpStatus, INestApplication } from '@nestjs/common';
+import { CacheModule, HttpStatus, INestApplication } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { Test } from '@nestjs/testing';
 import mongoose, { Model } from 'mongoose';
@@ -8,6 +8,7 @@ import { AssetsController } from '../../src/assets/assets.controller';
 import { assetsProviders } from '../../src/assets/assets.providers';
 import { AssetsService } from '../../src/assets/assets.service';
 import { Asset } from '../../src/assets/interfaces/asset.interface';
+import { FiroRpcService } from '../../src/firo-rpc/firo-rpc.service';
 
 describe('Assets', () => {
   let app: INestApplication;
@@ -19,6 +20,13 @@ describe('Assets', () => {
     logo: 'logo1',
     decimal: 1e18,
   };
+  const nativeAsset = {
+    name: 'Native',
+    address: '',
+    symbol: 'sym1',
+    logo: 'logo1',
+    decimal: 1e8,
+  };
 
   const databaseProviders = {
     provide: 'DATABASE_CONNECTION',
@@ -26,11 +34,24 @@ describe('Assets', () => {
       mongoose.connect(process.env.MONGO_URL_TEST),
   };
 
+  const firoRpcService = {
+    provide: FiroRpcService,
+    useValue: {
+      getNativeBalance: jest.fn().mockResolvedValue(100),
+      getAssetBalance: jest.fn().mockResolvedValue(100),
+    },
+  };
+
   beforeAll(async () => {
     const moduleAsset = await Test.createTestingModule({
-      imports: [ConfigModule.forRoot()],
+      imports: [ConfigModule.forRoot(), CacheModule.register()],
       controllers: [AssetsController],
-      providers: [AssetsService, ...assetsProviders, databaseProviders],
+      providers: [
+        AssetsService,
+        ...assetsProviders,
+        databaseProviders,
+        firoRpcService,
+      ],
     }).compile();
 
     app = moduleAsset.createNestApplication();
@@ -45,7 +66,7 @@ describe('Assets', () => {
       .then((res) => {
         expect(res.status).toEqual(HttpStatus.CREATED);
         expect(res.body.name).toEqual(asset.name);
-        expect(res.body.balance).toBeGreaterThanOrEqual(0);
+        expect(res.body.balance).toEqual(0);
         expect(res.body.address).toEqual(asset.address);
         expect(res.body.symbol).toEqual(asset.symbol);
         expect(res.body.logo).toEqual(asset.logo);
@@ -60,6 +81,23 @@ describe('Assets', () => {
       .expect(HttpStatus.OK)
       .then((res) => {
         expect(res.body.length).toBeGreaterThanOrEqual(1);
+        expect(res.body[0].balance).toEqual(100);
+      });
+  });
+
+  it(`/POST native assets`, async () => {
+    return request(app.getHttpServer())
+      .post('/assets')
+      .send(nativeAsset)
+      .then((res) => {
+        expect(res.status).toEqual(HttpStatus.CREATED);
+        expect(res.body.name).toEqual(nativeAsset.name);
+        expect(res.body.balance).toEqual(0);
+        expect(res.body.address).toEqual(nativeAsset.address);
+        expect(res.body.symbol).toEqual(nativeAsset.symbol);
+        expect(res.body.logo).toEqual(nativeAsset.logo);
+        expect(res.body.decimal).toEqual(nativeAsset.decimal);
+        expect(res.body._id).toBeDefined();
       });
   });
 
@@ -70,7 +108,7 @@ describe('Assets', () => {
       .expect(HttpStatus.OK)
       .then((res) => {
         expect(res.body.name).toEqual(asset.name);
-        expect(res.body.balance).toBeGreaterThanOrEqual(0);
+        expect(res.body.balance).toEqual(100);
         expect(res.body.address).toEqual(asset.address);
         expect(res.body.symbol).toEqual(asset.symbol);
         expect(res.body.logo).toEqual(asset.logo);
@@ -100,7 +138,7 @@ describe('Assets', () => {
       .expect(HttpStatus.OK)
       .then(async (res) => {
         expect(res.body.name).toEqual(asset.name);
-        expect(res.body.balance).toBeGreaterThanOrEqual(0);
+        expect(res.body.balance).toEqual(100);
         expect(res.body.address).toEqual(asset.address);
         expect(res.body.symbol).toEqual(asset.symbol);
         expect(res.body.logo).toEqual(asset.logo);
