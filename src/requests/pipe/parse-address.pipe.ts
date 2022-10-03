@@ -1,10 +1,10 @@
-import { PipeTransform, Injectable, ArgumentMetadata } from '@nestjs/common';
+import { PipeTransform, Injectable } from '@nestjs/common';
 import { Address, Networks } from 'fvmcore-lib';
 import { RequestDto } from '../dto/request.dto';
 
 @Injectable()
 export class ParseAddressPipe implements PipeTransform<RequestDto> {
-  transform(value: RequestDto, metadata: ArgumentMetadata): RequestDto {
+  transform(value: RequestDto): RequestDto {
     const address = value.address.replace('0x', '');
     const network = process.env.NETWORK;
     if (address.length === 40) {

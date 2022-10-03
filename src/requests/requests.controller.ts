@@ -1,4 +1,4 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Ip, Post } from '@nestjs/common';
 import { RequestDto } from './dto/request.dto';
 import { ParseAddressPipe } from './pipe/parse-address.pipe';
 import { RequestsService } from './requests.service';
@@ -8,8 +8,12 @@ export class RequestsController {
   constructor(private requestService: RequestsService) {}
 
   @Post()
-  async requestAsset(@Body(new ParseAddressPipe()) body: RequestDto) {
-    console.log('requestAsset', body);
-    return 'requestAsset';
+  async requestAsset(
+    @Body(new ParseAddressPipe()) requestDto: RequestDto,
+    @Ip() ip: string,
+  ) {
+    return {
+      tx: await this.requestService.requestAsset(requestDto, ip),
+    };
   }
 }
