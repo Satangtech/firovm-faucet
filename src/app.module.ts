@@ -24,6 +24,7 @@ import { RequestsModule } from './requests/requests.module';
         PRIVKEY: Joi.string().required(),
         CACHE_TIMES_MINUTE: Joi.number().default(15),
         REACH_LIMIT_HOUR: Joi.number().default(24),
+        FAUCET_AMOUNT: Joi.number().default(100),
       }),
     }),
     RequestsModule,
