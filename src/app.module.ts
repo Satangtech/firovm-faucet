@@ -5,6 +5,7 @@ import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AssetsModule } from './assets/assets.module';
+import { RequestsModule } from './requests/requests.module';
 
 @Module({
   imports: [
@@ -22,8 +23,10 @@ import { AssetsModule } from './assets/assets.module';
           .default('regtest'),
         PRIVKEY: Joi.string().required(),
         CACHE_TIMES_MINUTE: Joi.number().default(15),
+        REACH_LIMIT_HOUR: Joi.number().default(24),
       }),
     }),
+    RequestsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
