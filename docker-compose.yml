@@ -7,7 +7,7 @@ services:
     working_dir: /app
     stdin_open: true
     tty: true
-    command: sh
+    command: npm start
     volumes:
       - ./:/app
     ports:
