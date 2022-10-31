@@ -13,6 +13,7 @@ async function bootstrap() {
       transform: true,
     }),
   );
+  app.enableCors();
   await app.listen(process.env.PORT, process.env.BIND, () => {
     logger.log(`Server is running on ${process.env.BIND}:${process.env.PORT}`);
   });
