@@ -23,7 +23,9 @@ export class RequestsService {
   ) {}
 
   async requestAsset(requestDto: RequestDto, ip: string): Promise<string> {
-    const { address, asset } = requestDto;
+    let { address } = requestDto;
+    const { asset } = requestDto;
+    address = this.firoRpcService.checkHexAddress(address);
 
     const cacheIp = await this.cacheManager.get(ip);
     if (cacheIp) {

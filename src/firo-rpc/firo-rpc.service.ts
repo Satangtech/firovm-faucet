@@ -7,6 +7,7 @@ import {
   RPCClient,
   Client,
 } from 'firovm-sdk';
+import { Address, Networks } from 'fvmcore-lib';
 
 @Injectable()
 export class FiroRpcService {
@@ -16,6 +17,7 @@ export class FiroRpcService {
   private address: string;
   private rpcUrl: string;
   private faucetAmount: number;
+  private network: string;
 
   constructor(private configService: ConfigService) {
     this.rpcUrl = this.configService.get<string>('RPC_URL');
@@ -27,11 +29,11 @@ export class FiroRpcService {
     this.client = new Client(this.rpcUrl);
     this.address = this.account.address().toString();
     this.faucetAmount = this.configService.get<number>('FAUCET_AMOUNT');
+    this.network = this.configService.get<string>('NETWORK');
   }
 
   getNetWork() {
-    const network = this.configService.get<string>('NETWORK');
-    switch (network) {
+    switch (this.network) {
       case 'mainnet':
         return Network.Mainnet;
       case 'testnet':
@@ -93,5 +95,16 @@ export class FiroRpcService {
       { feePerKb: 1000 },
     );
     return txId;
+  }
+
+  checkHexAddress(address: string) {
+    if (address.replace('0x', '').length != 40) {
+      return address;
+    }
+    const ObjAddress = Address.fromPublicKeyHash(
+      Buffer.from(address.replace('0x', ''), 'hex'),
+      Networks.get(this.network),
+    );
+    return ObjAddress.toString();
   }
 }
