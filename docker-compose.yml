@@ -4,10 +4,8 @@ services:
   faucet:
     build: .
     restart: always
-    working_dir: /app
     stdin_open: true
     tty: true
-    command: sh -c "yarn && yarn start"
     volumes:
       - ./:/app
     ports:
