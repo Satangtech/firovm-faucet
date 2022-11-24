@@ -27,8 +27,8 @@ export class RequestsService {
     const { asset } = requestDto;
     address = this.firoRpcService.checkHexAddress(address);
 
-    const cacheIp = await this.cacheManager.get(ip);
-    if (cacheIp) {
+    const cacheIpAsset = await this.cacheManager.get(ip);
+    if (cacheIpAsset && cacheIpAsset === asset) {
       throw new HttpException(
         {
           id: 'REACH_LIMIT_IP',
@@ -38,8 +38,8 @@ export class RequestsService {
       );
     }
 
-    const cacheAddress = await this.cacheManager.get(address);
-    if (cacheAddress) {
+    const cacheAddressAsset = await this.cacheManager.get(address);
+    if (cacheAddressAsset && cacheAddressAsset === asset) {
       throw new HttpException(
         {
           id: 'REACH_LIMIT_ADDRESS',
