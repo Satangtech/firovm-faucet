@@ -2,8 +2,6 @@ import * as Joi from 'joi';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { AssetsModule } from './assets/assets.module';
 import { RequestsModule } from './requests/requests.module';
 
@@ -32,7 +30,5 @@ import { RequestsModule } from './requests/requests.module';
     }),
     RequestsModule,
   ],
-  controllers: [AppController],
-  providers: [AppService],
 })
 export class AppModule {}
