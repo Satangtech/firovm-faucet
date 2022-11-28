@@ -1,4 +1,5 @@
 import { HttpModule } from '@nestjs/axios';
+import { CacheModule } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
 import { AisService } from './ais.service';
@@ -8,7 +9,7 @@ describe('AisService', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      imports: [ConfigModule.forRoot(), HttpModule],
+      imports: [ConfigModule.forRoot(), HttpModule, CacheModule.register()],
       providers: [AisService],
     }).compile();
 
@@ -30,5 +31,31 @@ describe('AisService', () => {
       .spyOn(service, 'getAisAuthToken')
       .mockImplementation(async () => result);
     expect(await service.getAisAuthToken()).toBe(result);
+  });
+
+  it('should get address from masque id', async () => {
+    const result = {
+      resultCode: '20000',
+      resultDescription: 'Success',
+      data: {
+        individualId: 'ais_idp_name:test001',
+        accountAddress: 'TKijwvuy2shFcKtdTsjvXjCB9fqrbJqdFK',
+        status: 'Active',
+        description: '10Set',
+        masqueId: 'test001',
+        name: 'test001',
+        requestId: '637b38afd498ac2c2d286ec0',
+        thumbnail:
+          'https://masque-dev.adldigitalservice.com/api/v3/masque/Image/637b38afd498ac2c2d286ec0/png',
+        displayPic:
+          'https://masque-dev.adldigitalservice.com/api/v3/masque/Image/637b38afd498ac2c2d286ec0/display',
+        gltf: 'https://masque-dev.adldigitalservice.com/api/v3/masque/Image/637b38afd498ac2c2d286ec0/gltf',
+        link: 'https://masque-dev.adldigitalservice.com/public/view/637b38afd498ac2c2d286ec0',
+      },
+    };
+    jest
+      .spyOn(service, 'getAddressFromMasqueId')
+      .mockImplementation(async () => result);
+    expect(await service.getAddressFromMasqueId('test001')).toBe(result);
   });
 });
