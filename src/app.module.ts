@@ -26,6 +26,7 @@ import { RequestsModule } from './requests/requests.module';
         AIS_CLIENT_ID: Joi.string().required(),
         AIS_CLIENT_SECRET: Joi.string().required(),
         AIS_GRANT_TYPE: Joi.string().required(),
+        AIS_ENDPOINT: Joi.string().required(),
       }),
     }),
     RequestsModule,
