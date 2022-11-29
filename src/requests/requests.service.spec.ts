@@ -2,6 +2,8 @@ import { CacheModule } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Model } from 'mongoose';
+import { AisModule } from '../ais/ais.module';
+import { AisService } from '../ais/ais.service';
 import { Asset } from '../assets/interfaces/asset.interface';
 import { FiroRpcModule } from '../firo-rpc/firo-rpc.module';
 import { FiroRpcService } from '../firo-rpc/firo-rpc.service';
@@ -30,10 +32,30 @@ describe('RequestsService', () => {
   let service: RequestsService;
   let model: Model<Asset>;
   let firoRpcService: FiroRpcService;
+  let aisService: AisService;
+  const masqueData = {
+    resultCode: '20000',
+    resultDescription: 'Success',
+    data: {
+      individualId: 'ais_idp_name:test001',
+      accountAddress: 'TKijwvuy2shFcKtdTsjvXjCB9fqrbJqdFK',
+      status: 'Active',
+      description: '10Set',
+      masqueId: 'test001',
+      name: 'test001',
+      requestId: '637b38afd498ac2c2d286ec0',
+      thumbnail:
+        'https://masque-dev.adldigitalservice.com/api/v3/masque/Image/637b38afd498ac2c2d286ec0/png',
+      displayPic:
+        'https://masque-dev.adldigitalservice.com/api/v3/masque/Image/637b38afd498ac2c2d286ec0/display',
+      gltf: 'https://masque-dev.adldigitalservice.com/api/v3/masque/Image/637b38afd498ac2c2d286ec0/gltf',
+      link: 'https://masque-dev.adldigitalservice.com/public/view/637b38afd498ac2c2d286ec0',
+    },
+  };
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      imports: [ConfigModule, CacheModule.register(), FiroRpcModule],
+      imports: [ConfigModule, CacheModule.register(), FiroRpcModule, AisModule],
       providers: [
         RequestsService,
         {
@@ -54,6 +76,11 @@ describe('RequestsService', () => {
     service = module.get<RequestsService>(RequestsService);
     model = module.get<Model<Asset>>('ASSET_MODEL');
     firoRpcService = module.get<FiroRpcService>(FiroRpcService);
+    aisService = module.get<AisService>(AisService);
+
+    jest
+      .spyOn(aisService, 'getAddressFromMasqueId')
+      .mockReturnValue(Promise.resolve(masqueData));
   });
 
   it('should be defined', () => {

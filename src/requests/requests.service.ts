@@ -8,6 +8,7 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { Cache } from 'cache-manager';
 import { Model } from 'mongoose';
+import { AisService } from '../ais/ais.service';
 
 import { Asset } from '../assets/interfaces/asset.interface';
 import { FiroRpcService } from '../firo-rpc/firo-rpc.service';
@@ -20,12 +21,16 @@ export class RequestsService {
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
     private configService: ConfigService,
     private readonly firoRpcService: FiroRpcService,
+    private readonly aisService: AisService,
   ) {}
 
   async requestAsset(requestDto: RequestDto, ip: string): Promise<string> {
     let { address } = requestDto;
     const { asset } = requestDto;
-    address = this.firoRpcService.checkHexAddress(address);
+    if (address.length !== 34) {
+      const masqueData = await this.aisService.getAddressFromMasqueId(address);
+      address = masqueData.data.accountAddress;
+    }
 
     const cacheIpAsset = await this.cacheManager.get(ip);
     if (cacheIpAsset && cacheIpAsset === asset) {
