@@ -6,7 +6,6 @@ import { CreateAssetDto } from './dto/create-asset.dto';
 
 describe('AssetsController', () => {
   let controller: AssetsController;
-  let service: AssetsService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -37,7 +36,6 @@ describe('AssetsController', () => {
     }).compile();
 
     controller = module.get(AssetsController);
-    service = module.get(AssetsService);
   });
 
   it('should be defined', () => {

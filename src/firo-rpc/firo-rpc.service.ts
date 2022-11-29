@@ -97,7 +97,7 @@ export class FiroRpcService {
     return txId;
   }
 
-  checkHexAddress(address: string) {
+  checkHexAddress(address: string): string {
     if (address.replace('0x', '').length != 40) {
       return address;
     }
