@@ -43,12 +43,18 @@ export class AisService {
   }
 
   async getAddressFromMasqueId(masqueId: string): Promise<MasqueIdResponse> {
+    const masqueData = await this.cacheManager.get(masqueId);
+    if (masqueData) {
+      return <MasqueIdResponse>masqueData;
+    }
+
     let accessToken = await this.cacheManager.get('access_token');
     if (!accessToken) {
       const data = await this.getAisAuthToken();
       await this.cacheManager.set('access_token', data.access_token, 3000);
       accessToken = data.access_token;
     }
+
     const res = await this.httpService.axiosRef({
       baseURL: this.masqueEndpoint,
       method: 'get',
@@ -56,9 +62,15 @@ export class AisService {
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${accessToken}`,
+        'x-tid': `FaucetService-${new Date()
+          .toISOString()
+          .replace(/[-:T]/g, '')
+          .slice(0, 14)}${Math.random().toString(36).substring(2, 7)}`,
       },
       httpsAgent: new https.Agent({ rejectUnauthorized: false }),
     });
+
+    await this.cacheManager.set(masqueId, res.data, 3600);
     return res.data;
   }
 }
