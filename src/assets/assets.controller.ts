@@ -6,7 +6,9 @@ import {
   Param,
   Patch,
   Post,
+  UseGuards,
 } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 import { AssetsService } from './assets.service';
 import { CreateAssetDto } from './dto/create-asset.dto';
 import { UpdateAssetDto } from './dto/update-asset.dto';
@@ -27,16 +29,19 @@ export class AssetsController {
   }
 
   @Post()
+  @UseGuards(AuthGuard('basic'))
   create(@Body() createAssetDto: CreateAssetDto): Promise<Asset> {
     return this.assetsService.create(createAssetDto);
   }
 
   @Patch(':id')
+  @UseGuards(AuthGuard('basic'))
   update(@Param('id') id: string, @Body() updateAssetDto: UpdateAssetDto) {
     return this.assetsService.update(id, updateAssetDto);
   }
 
   @Delete(':id')
+  @UseGuards(AuthGuard('basic'))
   remove(@Param('id') id: string): Promise<Asset> {
     return this.assetsService.remove(id);
   }
