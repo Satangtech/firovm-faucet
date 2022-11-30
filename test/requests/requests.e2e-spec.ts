@@ -85,7 +85,12 @@ describe('Requests', () => {
 
   beforeAll(async () => {
     const module = await Test.createTestingModule({
-      imports: [ConfigModule.forRoot(), CacheModule.register()],
+      imports: [
+        ConfigModule.forRoot({
+          envFilePath: '.env.test',
+        }),
+        CacheModule.register(),
+      ],
       controllers: [RequestsController],
       providers: [
         RequestsService,
