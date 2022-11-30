@@ -28,6 +28,8 @@ import { RequestsModule } from './requests/requests.module';
         AIS_GRANT_TYPE: Joi.string().required(),
         AIS_AUTH_ENDPOINT: Joi.string().required(),
         AIS_MASQUE_ENDPOINT: Joi.string().required(),
+        ADMIN_USERNAME: Joi.string().required(),
+        ADMIN_PASSWORD: Joi.string().required(),
       }),
     }),
     RequestsModule,
