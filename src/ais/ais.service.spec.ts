@@ -9,7 +9,13 @@ describe('AisService', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      imports: [ConfigModule.forRoot(), HttpModule, CacheModule.register()],
+      imports: [
+        ConfigModule.forRoot({
+          envFilePath: '.env.test',
+        }),
+        HttpModule,
+        CacheModule.register(),
+      ],
       providers: [AisService],
     }).compile();
 

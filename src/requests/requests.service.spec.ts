@@ -55,7 +55,14 @@ describe('RequestsService', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      imports: [ConfigModule, CacheModule.register(), FiroRpcModule, AisModule],
+      imports: [
+        ConfigModule.forRoot({
+          envFilePath: '.env.test',
+        }),
+        CacheModule.register(),
+        FiroRpcModule,
+        AisModule,
+      ],
       providers: [
         RequestsService,
         {
