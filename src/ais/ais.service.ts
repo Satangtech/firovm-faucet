@@ -1,5 +1,5 @@
 import { HttpService } from '@nestjs/axios';
-import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common';
+import { CACHE_MANAGER, Inject, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as https from 'https';
 import { Cache } from 'cache-manager';
@@ -13,6 +13,7 @@ export class AisService {
   private grantType: string;
   private authEndpoint: string;
   private masqueEndpoint: string;
+  private logger: Logger;
 
   constructor(
     private configService: ConfigService,
@@ -24,21 +25,27 @@ export class AisService {
     this.grantType = this.configService.get<string>('AIS_GRANT_TYPE');
     this.authEndpoint = this.configService.get<string>('AIS_AUTH_ENDPOINT');
     this.masqueEndpoint = this.configService.get<string>('AIS_MASQUE_ENDPOINT');
+    this.logger = new Logger(AisService.name);
   }
 
   async getAisAuthToken(): Promise<TokenAuthResponse> {
-    const res = await this.httpService.axiosRef({
-      baseURL: this.authEndpoint,
-      url: '/auth/v3.2/oauth/token',
-      method: 'post',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      data: {
-        client_id: this.clientId,
-        client_secret: this.clientSecret,
-        grant_type: this.grantType,
-      },
-      httpsAgent: new https.Agent({ rejectUnauthorized: false }),
-    });
+    const res = await this.httpService
+      .axiosRef({
+        baseURL: this.authEndpoint,
+        url: '/auth/v3.2/oauth/token',
+        method: 'post',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        data: {
+          client_id: this.clientId,
+          client_secret: this.clientSecret,
+          grant_type: this.grantType,
+        },
+        httpsAgent: new https.Agent({ rejectUnauthorized: false }),
+      })
+      .catch((error) => {
+        this.logger.error(error.response.data);
+        throw error;
+      });
     return res.data;
   }
 
@@ -55,20 +62,25 @@ export class AisService {
       accessToken = data.access_token;
     }
 
-    const res = await this.httpService.axiosRef({
-      baseURL: this.masqueEndpoint,
-      method: 'get',
-      url: `/api/v3/masque-be/masqueId/${masqueId}`,
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${accessToken}`,
-        'x-tid': `FaucetService-${new Date()
-          .toISOString()
-          .replace(/[-:T]/g, '')
-          .slice(0, 14)}${Math.random().toString(36).substring(2, 7)}`,
-      },
-      httpsAgent: new https.Agent({ rejectUnauthorized: false }),
-    });
+    const res = await this.httpService
+      .axiosRef({
+        baseURL: this.masqueEndpoint,
+        method: 'get',
+        url: `/api/v3/masque-be/masqueId/${masqueId}`,
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`,
+          'x-tid': `FaucetService-${new Date()
+            .toISOString()
+            .replace(/[-:T]/g, '')
+            .slice(0, 14)}${Math.random().toString(36).substring(2, 7)}`,
+        },
+        httpsAgent: new https.Agent({ rejectUnauthorized: false }),
+      })
+      .catch((error) => {
+        this.logger.error(error.response.data);
+        throw error;
+      });
 
     await this.cacheManager.set(masqueId, res.data, 3600);
     return res.data;
