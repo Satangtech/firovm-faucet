@@ -11,5 +11,9 @@ cp .env.example .env
 ## Start the application
 
 ```bash
+# for test on local
 docker compose up -d
+
+# for development server
+docker compose -f docker-compose.dev.yml up -d
 ```
