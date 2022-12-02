@@ -2,8 +2,6 @@ import * as Joi from 'joi';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { AssetsModule } from './assets/assets.module';
 import { RequestsModule } from './requests/requests.module';
 
@@ -28,11 +26,13 @@ import { RequestsModule } from './requests/requests.module';
         AIS_CLIENT_ID: Joi.string().required(),
         AIS_CLIENT_SECRET: Joi.string().required(),
         AIS_GRANT_TYPE: Joi.string().required(),
+        AIS_AUTH_ENDPOINT: Joi.string().required(),
+        AIS_MASQUE_ENDPOINT: Joi.string().required(),
+        ADMIN_USERNAME: Joi.string().required(),
+        ADMIN_PASSWORD: Joi.string().required(),
       }),
     }),
     RequestsModule,
   ],
-  controllers: [AppController],
-  providers: [AppService],
 })
 export class AppModule {}

@@ -5,7 +5,7 @@ import { AppModule } from './app.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  const logger = new Logger(AppModule.name);
+  const logger = new Logger('Main');
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,

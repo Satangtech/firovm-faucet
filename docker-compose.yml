@@ -6,6 +6,7 @@ services:
     restart: always
     stdin_open: true
     tty: true
+    command: sh -c "yarn start:dev"
     volumes:
       - ./:/app
     ports:

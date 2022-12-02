@@ -46,24 +46,32 @@ export class FiroRpcService {
   }
 
   async getNativeBalance(): Promise<number> {
-    const { result, error } = await this.rpc.getAddressBalance(
-      this.account.address().toString(),
-    );
-    if (error) {
+    try {
+      const { result, error } = await this.rpc.getAddressBalance(
+        this.account.address().toString(),
+      );
+      if (error) {
+        throw new HttpException(error.message, 500);
+      }
+      return result.balance;
+    } catch (error) {
       throw new HttpException(error.message, 500);
     }
-    return result.balance;
   }
 
   async getAssetBalance(assetAddress: string): Promise<number> {
-    const { result, error } = await this.rpc.getTokenBalance(
-      assetAddress,
-      this.address,
-    );
-    if (error) {
+    try {
+      const { result, error } = await this.rpc.getTokenBalance(
+        assetAddress,
+        this.address,
+      );
+      if (error) {
+        throw new HttpException(error.message, 500);
+      }
+      return result;
+    } catch (error) {
       throw new HttpException(error.message, 500);
     }
-    return result;
   }
 
   async tokenTransfer(
@@ -71,33 +79,41 @@ export class FiroRpcService {
     nativeAddress: string,
     tokenDecimal: number,
   ): Promise<string> {
-    const txId = await this.client.tokenTransfer(
-      this.account,
-      tokenAddress,
-      nativeAddress,
-      BigInt(this.faucetAmount * tokenDecimal),
-    );
-    return txId;
+    try {
+      const txId = await this.client.tokenTransfer(
+        this.account,
+        tokenAddress,
+        nativeAddress,
+        BigInt(this.faucetAmount * tokenDecimal),
+      );
+      return txId;
+    } catch (error) {
+      throw new HttpException(error.message, 500);
+    }
   }
 
   async nativeTransfer(
     nativeAddress: string,
     tokenDecimal: number,
   ): Promise<string> {
-    const txId = await this.client.sendFrom(
-      this.account,
-      [
-        {
-          to: nativeAddress as string,
-          value: this.faucetAmount * tokenDecimal,
-        },
-      ],
-      { feePerKb: 1000 },
-    );
-    return txId;
+    try {
+      const txId = await this.client.sendFrom(
+        this.account,
+        [
+          {
+            to: nativeAddress as string,
+            value: this.faucetAmount * tokenDecimal,
+          },
+        ],
+        { feePerKb: 1000 },
+      );
+      return txId;
+    } catch (error) {
+      throw new HttpException(error.message, 500);
+    }
   }
 
-  checkHexAddress(address: string) {
+  checkHexAddress(address: string): string {
     if (address.replace('0x', '').length != 40) {
       return address;
     }

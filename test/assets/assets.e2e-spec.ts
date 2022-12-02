@@ -1,5 +1,5 @@
 import { CacheModule, HttpStatus, INestApplication } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { Test } from '@nestjs/testing';
 import mongoose, { Model } from 'mongoose';
 import * as request from 'supertest';
@@ -8,11 +8,13 @@ import { AssetsController } from '../../src/assets/assets.controller';
 import { assetsProviders } from '../../src/assets/assets.providers';
 import { AssetsService } from '../../src/assets/assets.service';
 import { Asset } from '../../src/assets/interfaces/asset.interface';
+import { AuthModule } from '../../src/auth/auth.module';
 import { FiroRpcService } from '../../src/firo-rpc/firo-rpc.service';
 
 describe('Assets', () => {
   let app: INestApplication;
   let model: Model<Asset>;
+  let config: ConfigService;
   const asset = {
     name: 'Name',
     address: 'addr1',
@@ -43,8 +45,14 @@ describe('Assets', () => {
   };
 
   beforeAll(async () => {
-    const moduleAsset = await Test.createTestingModule({
-      imports: [ConfigModule.forRoot(), CacheModule.register()],
+    const module = await Test.createTestingModule({
+      imports: [
+        ConfigModule.forRoot({
+          envFilePath: '.env.test',
+        }),
+        CacheModule.register(),
+        AuthModule,
+      ],
       controllers: [AssetsController],
       providers: [
         AssetsService,
@@ -54,14 +62,16 @@ describe('Assets', () => {
       ],
     }).compile();
 
-    app = moduleAsset.createNestApplication();
+    app = module.createNestApplication();
     await app.init();
-    model = moduleAsset.get<Model<Asset>>('ASSET_MODEL');
+    model = module.get<Model<Asset>>('ASSET_MODEL');
+    config = module.get<ConfigService>(ConfigService);
   });
 
   it(`/POST assets`, async () => {
     return request(app.getHttpServer())
       .post('/assets')
+      .auth(config.get('ADMIN_USERNAME'), config.get('ADMIN_PASSWORD'))
       .send(asset)
       .then((res) => {
         expect(res.status).toEqual(HttpStatus.CREATED);
@@ -88,6 +98,7 @@ describe('Assets', () => {
   it(`/POST native assets`, async () => {
     return request(app.getHttpServer())
       .post('/assets')
+      .auth(config.get('ADMIN_USERNAME'), config.get('ADMIN_PASSWORD'))
       .send(nativeAsset)
       .then((res) => {
         expect(res.status).toEqual(HttpStatus.CREATED);
@@ -123,6 +134,7 @@ describe('Assets', () => {
 
     return request(app.getHttpServer())
       .patch(`/assets/${asset._id.toString()}`)
+      .auth(config.get('ADMIN_USERNAME'), config.get('ADMIN_PASSWORD'))
       .send({ address, logo })
       .expect(HttpStatus.OK)
       .then(async (res) => {
@@ -135,6 +147,7 @@ describe('Assets', () => {
     const asset = await model.findOne({ name: 'Name' }).exec();
     return request(app.getHttpServer())
       .delete(`/assets/${asset._id.toString()}`)
+      .auth(config.get('ADMIN_USERNAME'), config.get('ADMIN_PASSWORD'))
       .expect(HttpStatus.OK)
       .then(async (res) => {
         expect(res.body.name).toEqual(asset.name);

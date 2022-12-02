@@ -1,5 +1,6 @@
 import { CacheModule, Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { AisModule } from '../ais/ais.module';
 
 import { AssetsModule } from '../assets/assets.module';
 import { assetsProviders } from '../assets/assets.providers';
@@ -15,6 +16,7 @@ import { RequestsService } from './requests.service';
     CacheModule.register(),
     AssetsModule,
     DatabaseModule,
+    AisModule,
   ],
   controllers: [RequestsController],
   providers: [RequestsService, ...assetsProviders],

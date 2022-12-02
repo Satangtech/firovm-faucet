@@ -6,11 +6,14 @@ import { CreateAssetDto } from './dto/create-asset.dto';
 
 describe('AssetsController', () => {
   let controller: AssetsController;
-  let service: AssetsService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      imports: [ConfigModule],
+      imports: [
+        ConfigModule.forRoot({
+          envFilePath: '.env.test',
+        }),
+      ],
       controllers: [AssetsController],
       providers: [
         {
@@ -37,7 +40,6 @@ describe('AssetsController', () => {
     }).compile();
 
     controller = module.get(AssetsController);
-    service = module.get(AssetsService);
   });
 
   it('should be defined', () => {

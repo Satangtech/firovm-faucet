@@ -4,10 +4,12 @@ import {
   HttpStatus,
   Inject,
   Injectable,
+  Logger,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Cache } from 'cache-manager';
 import { Model } from 'mongoose';
+import { AisService } from '../ais/ais.service';
 
 import { Asset } from '../assets/interfaces/asset.interface';
 import { FiroRpcService } from '../firo-rpc/firo-rpc.service';
@@ -15,17 +17,34 @@ import { RequestDto } from './dto/request.dto';
 
 @Injectable()
 export class RequestsService {
+  logger: Logger;
+
   constructor(
     @Inject('ASSET_MODEL') private readonly assetModel: Model<Asset>,
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
     private configService: ConfigService,
     private readonly firoRpcService: FiroRpcService,
-  ) {}
+    private readonly aisService: AisService,
+  ) {
+    this.logger = new Logger(RequestsService.name);
+  }
 
   async requestAsset(requestDto: RequestDto, ip: string): Promise<string> {
     let { address } = requestDto;
     const { asset } = requestDto;
-    address = this.firoRpcService.checkHexAddress(address);
+    try {
+      if (address.length !== 34) {
+        const masqueData = await this.aisService.getAddressFromMasqueId(
+          address,
+        );
+        address = masqueData.data.accountAddress;
+      }
+    } catch (error) {
+      throw new HttpException(
+        JSON.stringify(error.response.data),
+        error.response.status,
+      );
+    }
 
     const cacheIpAsset = await this.cacheManager.get(ip);
     if (cacheIpAsset && cacheIpAsset === asset) {

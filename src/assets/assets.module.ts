@@ -1,5 +1,6 @@
 import { CacheModule, Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { AuthModule } from '../auth/auth.module';
 
 import { DatabaseModule } from '../database/database.module';
 import { FiroRpcModule } from '../firo-rpc/firo-rpc.module';
@@ -13,6 +14,7 @@ import { AssetsService } from './assets.service';
     DatabaseModule,
     FiroRpcModule,
     CacheModule.register(),
+    AuthModule,
   ],
   controllers: [AssetsController],
   providers: [AssetsService, ...assetsProviders],
