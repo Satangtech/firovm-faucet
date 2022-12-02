@@ -1,3 +1,4 @@
+import { HttpModule } from '@nestjs/axios';
 import { CacheModule, HttpStatus, INestApplication } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { Test } from '@nestjs/testing';
@@ -86,6 +87,7 @@ describe('Requests', () => {
   beforeAll(async () => {
     const module = await Test.createTestingModule({
       imports: [
+        HttpModule,
         ConfigModule.forRoot({
           envFilePath: '.env.test',
         }),
