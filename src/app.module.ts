@@ -14,7 +14,6 @@ import { RequestsModule } from './requests/requests.module';
         PORT: Joi.number().default(3000),
         BIND: Joi.string().default('0.0.0.0'),
         MONGO_URL: Joi.string().required(),
-        MONGO_URL_TEST: Joi.string().required(),
         RPC_URL: Joi.string().required(),
         NETWORK: Joi.string()
           .valid('regtest', 'testnet', 'mainnet')

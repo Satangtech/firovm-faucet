@@ -33,7 +33,7 @@ describe('Assets', () => {
   const databaseProviders = {
     provide: 'DATABASE_CONNECTION',
     useFactory: (): Promise<typeof mongoose> =>
-      mongoose.connect(process.env.MONGO_URL_TEST),
+      mongoose.connect(process.env.MONGO_URL),
   };
 
   const firoRpcService = {
@@ -161,7 +161,7 @@ describe('Assets', () => {
   });
 
   afterAll(async () => {
-    await mongoose.connection.db.dropDatabase();
+    await mongoose.connection.db.dropCollection('assets');
     await mongoose.disconnect();
     await app.close();
   });
