@@ -23,6 +23,7 @@ export class AssetsService {
 
   async create(createAssetDto: CreateAssetDto): Promise<Asset> {
     const createdAsset = this.assetModel.create(createAssetDto);
+    await this.cacheManager.del('assets');
     return createdAsset;
   }
 
@@ -63,12 +64,16 @@ export class AssetsService {
   }
 
   async update(id: string, updateAssetDto: UpdateAssetDto): Promise<Asset> {
-    return this.assetModel.findByIdAndUpdate(id, updateAssetDto, {
+    const result = this.assetModel.findByIdAndUpdate(id, updateAssetDto, {
       new: true,
     });
+    await this.cacheManager.del('assets');
+    return result;
   }
 
   async remove(id: string): Promise<Asset> {
-    return this.assetModel.findByIdAndRemove(id);
+    const result = this.assetModel.findByIdAndRemove(id);
+    await this.cacheManager.del('assets');
+    return result;
   }
 }
