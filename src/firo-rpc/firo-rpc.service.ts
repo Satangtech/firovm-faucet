@@ -21,6 +21,7 @@ export class FiroRpcService {
 
   constructor(private configService: ConfigService) {
     this.rpcUrl = this.configService.get<string>('RPC_URL');
+    this.network = this.configService.get<string>('NETWORK');
     this.account = new PrivkeyAccount(
       new Context().withNetwork(this.getNetWork()),
       this.configService.get<string>('PRIVKEY'),
@@ -29,7 +30,6 @@ export class FiroRpcService {
     this.client = new Client(this.rpcUrl);
     this.address = this.account.address().toString();
     this.faucetAmount = this.configService.get<number>('FAUCET_AMOUNT');
-    this.network = this.configService.get<string>('NETWORK');
   }
 
   getNetWork() {
