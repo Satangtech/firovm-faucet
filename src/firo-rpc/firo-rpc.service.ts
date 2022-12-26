@@ -105,7 +105,7 @@ export class FiroRpcService {
             value: this.faucetAmount * tokenDecimal,
           },
         ],
-        { feePerKb: 1000 },
+        { feePerKb: 1000000 },
       );
       return txId;
     } catch (error) {
