@@ -4167,10 +4167,10 @@ find-up@^5.0.0:
     locate-path "^6.0.0"
     path-exists "^4.0.0"
 
-firovm-sdk@^0.0.7-alpha:
-  version "0.0.7-alpha"
-  resolved "https://registry.yarnpkg.com/firovm-sdk/-/firovm-sdk-0.0.7-alpha.tgz#774b7edd552e5a8efdd07c168fb3c349327b8337"
-  integrity sha512-/8nxJabtzylOEUKtz/ict2yiIJp5tbfSDzkYlzfbs2+ttCq4mzMB7uMr59sW9HhrtaJbOJL7wy5//r6U8D5WOQ==
+firovm-sdk@^0.0.9-alpha:
+  version "0.0.9-alpha"
+  resolved "https://registry.yarnpkg.com/firovm-sdk/-/firovm-sdk-0.0.9-alpha.tgz#7e058fc9a313eaf59e048e09dd96af7cff7ec50f"
+  integrity sha512-6URDvnlajmc3anOxSnqfh8zvsHl2cYZ7GyM76baqI8M7kdpaDMyQ9g1PvPrum6fP1ztVH7Ll0M2m2MAlQUNFew==
   dependencies:
     "@noble/secp256k1" "^1.6.3"
     "@types/lodash" "^4.14.178"
@@ -4179,7 +4179,7 @@ firovm-sdk@^0.0.7-alpha:
     bip39 "^3.0.4"
     decimal.js "^10.3.1"
     ethjs-unit "^0.1.6"
-    fvmcore-lib "https://gitpkg.now.sh/Satang-Technology-Co-Ltd/bitcore/packages/bitcore-lib-fvm?d02e926a229ca8e38d24c90ebe87a4dec81cb249"
+    fvmcore-lib "https://gitpkg.now.sh/Satangtech/bitcore/packages/bitcore-lib-fvm?145f53ba9e754dbfc3c19be9b3911021fbdb8d70"
     nock "^13.2.1"
     node-fetch "^2.6.6"
     web3 "^1.6.1"
@@ -4322,9 +4322,9 @@ function-bind@^1.1.1:
   resolved "https://registry.yarnpkg.com/function-bind/-/function-bind-1.1.1.tgz#a56899d3ea3c9bab874bb9773b7c5ede92f4895d"
   integrity sha512-yIovAzMX49sF8Yl58fSCWJ5svSLuaibPxXQJFLmBObTuCr0Mf1KiPopGM9NiFjiYBCbfaa2Fh6breQ6ANVTI0A==
 
-"fvmcore-lib@https://gitpkg.now.sh/Satang-Technology-Co-Ltd/bitcore/packages/bitcore-lib-fvm?d02e926a229ca8e38d24c90ebe87a4dec81cb249":
+"fvmcore-lib@https://gitpkg.now.sh/Satangtech/bitcore/packages/bitcore-lib-fvm?145f53ba9e754dbfc3c19be9b3911021fbdb8d70":
   version "8.25.25"
-  resolved "https://gitpkg.now.sh/Satang-Technology-Co-Ltd/bitcore/packages/bitcore-lib-fvm?d02e926a229ca8e38d24c90ebe87a4dec81cb249#8170d0ee8274202c926e9f125133c25f2cdd3bec"
+  resolved "https://gitpkg.now.sh/Satangtech/bitcore/packages/bitcore-lib-fvm?145f53ba9e754dbfc3c19be9b3911021fbdb8d70#41308e7f63600d370ad1fba5b28cb534e510e65f"
   dependencies:
     bech32 "=2.0.0"
     bip-schnorr "=0.6.4"
