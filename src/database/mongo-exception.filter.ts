@@ -14,7 +14,9 @@ export class MongoExceptionFilter implements ExceptionFilter {
         const ctx = host.switchToHttp();
         const response = ctx.getResponse();
         response.status(HttpStatus.BAD_REQUEST).json({
-          msg: 'Duplicate key',
+          statusCode: HttpStatus.BAD_REQUEST,
+          message: 'Duplicate key',
+          error: 'Bad Request',
         });
     }
   }
