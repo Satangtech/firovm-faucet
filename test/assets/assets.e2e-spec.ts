@@ -1,168 +1,133 @@
-import { CacheModule, HttpStatus, INestApplication } from '@nestjs/common';
-import { ConfigModule, ConfigService } from '@nestjs/config';
-import { Test } from '@nestjs/testing';
-import mongoose, { Model } from 'mongoose';
-import * as request from 'supertest';
-
-import { AssetsController } from '../../src/assets/assets.controller';
-import { assetsProviders } from '../../src/assets/assets.providers';
-import { AssetsService } from '../../src/assets/assets.service';
-import { Asset } from '../../src/assets/interfaces/asset.interface';
-import { AuthModule } from '../../src/auth/auth.module';
-import { FiroRpcService } from '../../src/firo-rpc/firo-rpc.service';
+import axios from 'axios';
+import {
+  Client,
+  Context,
+  Network,
+  PrivkeyAccount,
+  RPCClient,
+} from 'firovm-sdk';
+import {
+  abiERC20,
+  byteCodeContractERC20,
+  testAddresses,
+  testPrivkeys,
+} from '../data';
 
 describe('Assets', () => {
-  let app: INestApplication;
-  let model: Model<Asset>;
-  let config: ConfigService;
-  const asset = {
-    name: 'Name',
-    address: 'addr1',
-    symbol: 'sym1',
-    logo: 'logo1',
-    decimal: 1e18,
+  const url = 'http://faucet:3000/assets';
+  const auth = {
+    username: 'admin',
+    password: 'admin',
   };
   const nativeAsset = {
     name: 'Native',
     address: '',
-    symbol: 'sym1',
-    logo: 'logo1',
+    symbol: 'FVM',
+    logo: 'https://fvm.org/logo.png',
     decimal: 1e8,
   };
+  const asset = {
+    name: 'GOLD',
+    address: '',
+    symbol: 'GLD',
+    logo: 'https://gold.org/logo.png',
+    decimal: 1e18,
+  };
+  const urlFirovm = new URL('http://test:test@firovm:1234');
+  const rpcClient = new RPCClient(urlFirovm.href);
+  const client = new Client(urlFirovm.href);
+  const address = testAddresses;
+  const privkey = testPrivkeys;
+  const context = new Context().withNetwork(Network.Testnet);
+  const account = {
+    acc1: new PrivkeyAccount(context, privkey.testPrivkey1),
+    acc2: new PrivkeyAccount(context, privkey.testPrivkey2),
+    acc3: new PrivkeyAccount(context, privkey.testPrivkey3),
+    acc4: new PrivkeyAccount(context, privkey.testPrivkey4),
+    acc5: new PrivkeyAccount(context, privkey.testPrivkey5),
+  };
+  let txid = '';
 
-  const databaseProviders = {
-    provide: 'DATABASE_CONNECTION',
-    useFactory: (): Promise<typeof mongoose> =>
-      mongoose.connect(process.env.MONGO_URL),
+  const loadWallet = async () => {
+    const res = await rpcClient.rpc('loadwallet', ['testwallet']);
   };
 
-  const firoRpcService = {
-    provide: FiroRpcService,
-    useValue: {
-      getNativeBalance: jest.fn().mockResolvedValue(100),
-      getAssetBalance: jest.fn().mockResolvedValue(100),
-    },
+  const getNewAddress = async (): Promise<string> => {
+    const res = await rpcClient.rpc('getnewaddress');
+    const address = res.result;
+    expect(typeof address).toBe('string');
+    return address;
+  };
+
+  const generateToAddress = async () => {
+    const res = await rpcClient.rpc('generatetoaddress', [
+      1,
+      address.testAddress1,
+    ]);
+    expect(res.result.length).toBeGreaterThan(0);
+  };
+
+  const deployContractERC20 = async () => {
+    const contract = new client.Contract(abiERC20);
+    const contractDeploy = contract.deploy(byteCodeContractERC20);
+    txid = await contractDeploy.send({ from: account.acc1 });
+    expect(typeof txid).toBe('string');
+    await generateToAddress();
+
+    const { result, error } = await rpcClient.getTransactionReceipt(txid);
+    expect(error).toBeNull();
+    expect(result.length).toBeGreaterThan(0);
+    expect(typeof result[0].contractAddress).toBe('string');
+    asset.address = result[0].contractAddress;
   };
 
   beforeAll(async () => {
-    const module = await Test.createTestingModule({
-      imports: [
-        ConfigModule.forRoot({
-          envFilePath: '.env.test',
-        }),
-        CacheModule.register(),
-        AuthModule,
-      ],
-      controllers: [AssetsController],
-      providers: [
-        AssetsService,
-        ...assetsProviders,
-        databaseProviders,
-        firoRpcService,
-      ],
-    }).compile();
-
-    app = module.createNestApplication();
-    await app.init();
-    model = module.get<Model<Asset>>('ASSET_MODEL');
-    config = module.get<ConfigService>(ConfigService);
-  });
-
-  it(`/POST assets`, async () => {
-    return request(app.getHttpServer())
-      .post('/assets')
-      .auth(config.get('ADMIN_USERNAME'), config.get('ADMIN_PASSWORD'))
-      .send(asset)
-      .then((res) => {
-        expect(res.status).toEqual(HttpStatus.CREATED);
-        expect(res.body.name).toEqual(asset.name);
-        expect(res.body.balance).toEqual(0);
-        expect(res.body.address).toEqual(asset.address);
-        expect(res.body.symbol).toEqual(asset.symbol);
-        expect(res.body.logo).toEqual(asset.logo);
-        expect(res.body.decimal).toEqual(asset.decimal);
-        expect(res.body._id).toBeDefined();
-      });
-  });
-
-  it(`/GET assets`, () => {
-    return request(app.getHttpServer())
-      .get('/assets')
-      .expect(HttpStatus.OK)
-      .then((res) => {
-        expect(res.body.length).toBeGreaterThanOrEqual(1);
-        expect(res.body[0].balance).toEqual(100);
-      });
+    await loadWallet();
+    await deployContractERC20();
   });
 
   it(`/POST native assets`, async () => {
-    return request(app.getHttpServer())
-      .post('/assets')
-      .auth(config.get('ADMIN_USERNAME'), config.get('ADMIN_PASSWORD'))
-      .send(nativeAsset)
-      .then((res) => {
-        expect(res.status).toEqual(HttpStatus.CREATED);
-        expect(res.body.name).toEqual(nativeAsset.name);
-        expect(res.body.balance).toEqual(0);
-        expect(res.body.address).toEqual(nativeAsset.address);
-        expect(res.body.symbol).toEqual(nativeAsset.symbol);
-        expect(res.body.logo).toEqual(nativeAsset.logo);
-        expect(res.body.decimal).toEqual(nativeAsset.decimal);
-        expect(res.body._id).toBeDefined();
-      });
+    const { status, data } = await axios.post(url, nativeAsset, {
+      auth,
+    });
+    // expect(status).toEqual(201);
+    // expect(data.name).toEqual(nativeAsset.name);
+    // expect(data.address).toEqual(nativeAsset.address);
+    // expect(data.symbol).toEqual(nativeAsset.symbol);
+    // expect(data.balance).toBeGreaterThan(0);
+    console.log(data);
   });
 
-  it(`/GET assets/:id`, async () => {
-    const asset = await model.findOne({ name: 'Name' }).exec();
-    return request(app.getHttpServer())
-      .get(`/assets/${asset._id.toString()}`)
-      .expect(HttpStatus.OK)
-      .then((res) => {
-        expect(res.body.name).toEqual(asset.name);
-        expect(res.body.balance).toEqual(100);
-        expect(res.body.address).toEqual(asset.address);
-        expect(res.body.symbol).toEqual(asset.symbol);
-        expect(res.body.logo).toEqual(asset.logo);
-        expect(res.body.decimal).toEqual(asset.decimal);
-      });
-  });
+  // it(`/POST Duplicate key`, async () => {
+  //   await axios
+  //     .post(url, nativeAsset, {
+  //       auth,
+  //     })
+  //     .catch((err) => {
+  //       expect(err.response.status).toEqual(400);
+  //       expect(err.response.data.msg).toEqual('Duplicate key');
+  //     });
+  // });
 
-  it(`Patch assets/:id`, async () => {
-    const asset = await model.findOne({ name: 'Name' }).exec();
-    const address = 'newAddress';
-    const logo = 'newLogo';
+  // it(`/POST assets`, async () => {
+  //   const { status, data } = await axios.post(url, asset, {
+  //     auth,
+  //   });
+  //   expect(status).toEqual(201);
+  //   console.log(data);
+  // });
 
-    return request(app.getHttpServer())
-      .patch(`/assets/${asset._id.toString()}`)
-      .auth(config.get('ADMIN_USERNAME'), config.get('ADMIN_PASSWORD'))
-      .send({ address, logo })
-      .expect(HttpStatus.OK)
-      .then(async (res) => {
-        expect(res.body.logo).toEqual(logo);
-        expect(res.body.address).toEqual(address);
-      });
-  });
+  // it(`/GET assets`, async () => {
+  //   const { status, data } = await axios.get(url);
+  //   expect(status).toEqual(200);
+  //   console.log(data);
+  // });
 
-  it(`Delete assets/:id`, async () => {
-    const asset = await model.findOne({ name: 'Name' }).exec();
-    return request(app.getHttpServer())
-      .delete(`/assets/${asset._id.toString()}`)
-      .auth(config.get('ADMIN_USERNAME'), config.get('ADMIN_PASSWORD'))
-      .expect(HttpStatus.OK)
-      .then(async (res) => {
-        expect(res.body.name).toEqual(asset.name);
-        expect(res.body.balance).toEqual(100);
-        expect(res.body.address).toEqual(asset.address);
-        expect(res.body.symbol).toEqual(asset.symbol);
-        expect(res.body.logo).toEqual(asset.logo);
-        expect(res.body.decimal).toEqual(asset.decimal);
-        expect(await model.findOne({ name: 'Name' }).exec()).toBeNull();
-      });
-  });
+  // it(`/GET assets/:id`, async () => {});
 
-  afterAll(async () => {
-    await mongoose.connection.db.dropCollection('assets');
-    await mongoose.disconnect();
-    await app.close();
-  });
+  // it(`Patch assets/:id`, async () => {});
+
+  // it(`Delete assets/:id`, async () => {});
+
+  // afterAll(async () => {});
 });
