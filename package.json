@@ -18,7 +18,11 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json"
+    "test:e2e": "jest --config ./test/jest-e2e.json",
+    "test:log-faucet": "docker compose -f docker-compose.test.yml logs -f faucet",
+    "test:up": "docker compose -f docker-compose.test.yml up faucet --build -d && yarn test:log-faucet",
+    "test:it": "docker compose -f docker-compose.test.yml up e2e-test --build && yarn test:down",
+    "test:down": "docker compose -f docker-compose.test.yml down -v"
   },
   "dependencies": {
     "@nestjs/axios": "^1.0.0",
@@ -29,10 +33,11 @@
     "@nestjs/mongoose": "^9.2.0",
     "@nestjs/passport": "^9.0.0",
     "@nestjs/platform-express": "^9.0.0",
+    "axios": "^1.2.6",
     "cache-manager": "4.1.0",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.13.2",
-    "firovm-sdk": "^0.0.9-alpha",
+    "firovm-sdk": "0.0.12-alpha",
     "joi": "^17.6.1",
     "mongoose": "^6.6.2",
     "passport": "^0.6.0",

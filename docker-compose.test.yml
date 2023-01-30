@@ -1,0 +1,40 @@
+version: '3'
+
+services:
+  faucet:
+    build: .
+    volumes:
+      - ./.env:/app/.env
+    depends_on:
+      - mongo
+      - firovm
+
+  mongo:
+    image: mongo:5
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: root
+      MONGO_INITDB_DATABASE: faucet
+    volumes:
+      - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js
+    command: --profile=1 --slowms=20 # for operations that take longer than (ms)
+
+  e2e-test:
+    build: .
+    command: yarn test:e2e
+    volumes:
+      - ./.env:/app/.env
+    depends_on:
+      - faucet
+
+  firovm:
+    image: satangtech/firovm-poa:4e0cb5d3019b081d1cd696b4f1bfa709ff5257d2
+    tty: true
+    stdin_open: true
+    working_dir: /root
+    command: bash -c "tar xfv firovm.tar && firovmd"
+    volumes:
+      - ./firovm.tar:/root/firovm.tar
+    ports:
+      - 1234:1234
+      - 11000:11000
