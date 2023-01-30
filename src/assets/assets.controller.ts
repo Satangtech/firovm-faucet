@@ -6,9 +6,11 @@ import {
   Param,
   Patch,
   Post,
+  UseFilters,
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
+import { MongoExceptionFilter } from '../database/mongo-exception.filter';
 import { AssetsService } from './assets.service';
 import { CreateAssetDto } from './dto/create-asset.dto';
 import { UpdateAssetDto } from './dto/update-asset.dto';
@@ -30,6 +32,7 @@ export class AssetsController {
 
   @Post()
   @UseGuards(AuthGuard('basic'))
+  @UseFilters(MongoExceptionFilter)
   create(@Body() createAssetDto: CreateAssetDto): Promise<Asset> {
     return this.assetsService.create(createAssetDto);
   }
