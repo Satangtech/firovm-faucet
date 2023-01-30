@@ -1,18 +1,10 @@
-import { HttpModule } from '@nestjs/axios';
-import { CacheModule, HttpStatus, INestApplication } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
-import { Test } from '@nestjs/testing';
-import mongoose, { Model } from 'mongoose';
-import * as request from 'supertest';
-import { AisService } from '../../src/ais/ais.service';
-
-import { assetsProviders } from '../../src/assets/assets.providers';
-import { Asset } from '../../src/assets/interfaces/asset.interface';
-import { FiroRpcService } from '../../src/firo-rpc/firo-rpc.service';
-import { RequestsController } from '../../src/requests/requests.controller';
-import { RequestsService } from '../../src/requests/requests.service';
-
 describe('Requests', () => {
+  // const getNewAddress = async (): Promise<string> => {
+  //   const res = await rpcClient.rpc('getnewaddress');
+  //   const address = res.result;
+  //   expect(typeof address).toBe('string');
+  //   return address;
+  // };
   // beforeAll(async () => {});
 
   it(`/POST requestAsset Native`, async () => {

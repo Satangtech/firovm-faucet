@@ -20,8 +20,10 @@
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "test:log-faucet": "docker compose -f docker-compose.test.yml logs -f faucet",
-    "test:up": "docker compose -f docker-compose.test.yml up faucet --build -d && yarn test:log-faucet",
-    "test:it": "docker compose -f docker-compose.test.yml up e2e-test --build && yarn test:down",
+    "test:build:faucet": "docker compose -f docker-compose.test.yml build faucet",
+    "test:build:e2e": "docker compose -f docker-compose.test.yml build e2e-test",
+    "test:up": "yarn test:build:faucet && docker compose -f docker-compose.test.yml up -d faucet && yarn test:log-faucet",
+    "test:it": "yarn test:build:e2e && docker compose -f docker-compose.test.yml up e2e-test",
     "test:down": "docker compose -f docker-compose.test.yml down -v"
   },
   "dependencies": {

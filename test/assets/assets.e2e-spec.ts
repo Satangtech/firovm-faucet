@@ -14,7 +14,6 @@ import {
 } from '../data';
 
 describe('Assets', () => {
-  const url = 'http://faucet:3000/assets';
   const auth = {
     username: 'admin',
     password: 'admin',
@@ -33,6 +32,11 @@ describe('Assets', () => {
     logo: 'https://gold.org/logo.png',
     decimal: 1e18,
   };
+  let assetID = '';
+  let nativeAssetID = '';
+  let txid = '';
+
+  const url = 'http://faucet:3000/assets';
   const urlFirovm = new URL('http://test:test@firovm:1234');
   const rpcClient = new RPCClient(urlFirovm.href);
   const client = new Client(urlFirovm.href);
@@ -46,17 +50,9 @@ describe('Assets', () => {
     acc4: new PrivkeyAccount(context, privkey.testPrivkey4),
     acc5: new PrivkeyAccount(context, privkey.testPrivkey5),
   };
-  let txid = '';
 
   const loadWallet = async () => {
-    const res = await rpcClient.rpc('loadwallet', ['testwallet']);
-  };
-
-  const getNewAddress = async (): Promise<string> => {
-    const res = await rpcClient.rpc('getnewaddress');
-    const address = res.result;
-    expect(typeof address).toBe('string');
-    return address;
+    await rpcClient.rpc('loadwallet', ['testwallet']);
   };
 
   const generateToAddress = async () => {
@@ -82,6 +78,7 @@ describe('Assets', () => {
   };
 
   beforeAll(async () => {
+    jest.setTimeout(180 * 1000);
     await loadWallet();
     await deployContractERC20();
   });
@@ -90,44 +87,100 @@ describe('Assets', () => {
     const { status, data } = await axios.post(url, nativeAsset, {
       auth,
     });
-    // expect(status).toEqual(201);
-    // expect(data.name).toEqual(nativeAsset.name);
-    // expect(data.address).toEqual(nativeAsset.address);
-    // expect(data.symbol).toEqual(nativeAsset.symbol);
-    // expect(data.balance).toBeGreaterThan(0);
-    console.log(data);
+    expect(status).toEqual(201);
+    expect(data.name).toEqual(nativeAsset.name);
+    expect(data.address).toEqual(nativeAsset.address);
+    expect(data.symbol).toEqual(nativeAsset.symbol);
+    expect(data.balance).toBe(0);
+    nativeAssetID = data._id;
   });
 
-  // it(`/POST Duplicate key`, async () => {
-  //   await axios
-  //     .post(url, nativeAsset, {
-  //       auth,
-  //     })
-  //     .catch((err) => {
-  //       expect(err.response.status).toEqual(400);
-  //       expect(err.response.data.msg).toEqual('Duplicate key');
-  //     });
-  // });
+  it(`/POST Duplicate key`, async () => {
+    await axios
+      .post(url, nativeAsset, {
+        auth,
+      })
+      .catch((err) => {
+        expect(err.response.data.statusCode).toEqual(400);
+        expect(err.response.data.message).toEqual('Duplicate key');
+      });
+  });
 
-  // it(`/POST assets`, async () => {
-  //   const { status, data } = await axios.post(url, asset, {
-  //     auth,
-  //   });
-  //   expect(status).toEqual(201);
-  //   console.log(data);
-  // });
+  it(`/POST assets`, async () => {
+    const { status, data } = await axios.post(url, asset, {
+      auth,
+    });
+    expect(status).toEqual(201);
+    expect(data.name).toEqual(asset.name);
+    expect(data.address).toEqual(asset.address);
+    expect(data.symbol).toEqual(asset.symbol);
+    expect(data.balance).toBe(0);
+    assetID = data._id;
+  });
 
-  // it(`/GET assets`, async () => {
-  //   const { status, data } = await axios.get(url);
-  //   expect(status).toEqual(200);
-  //   console.log(data);
-  // });
+  it(`/GET assets`, async () => {
+    const { status, data } = await axios.get(url);
+    expect(status).toEqual(200);
+    expect(data.length).toBe(2);
+  });
 
-  // it(`/GET assets/:id`, async () => {});
+  it(`/GET assets/:id`, async () => {
+    const { status, data } = await axios.get(`${url}/${assetID}`);
+    expect(status).toEqual(200);
+    expect(data.name).toEqual(asset.name);
+    expect(data.address).toEqual(asset.address);
+    expect(data.symbol).toEqual(asset.symbol);
+    expect(data.balance).toBeGreaterThan(0);
+  });
 
-  // it(`Patch assets/:id`, async () => {});
+  it(`/GET native assets/:id`, async () => {
+    const { status, data } = await axios.get(`${url}/${nativeAssetID}`);
+    expect(status).toEqual(200);
+    expect(data.name).toEqual(nativeAsset.name);
+    expect(data.address).toEqual(nativeAsset.address);
+    expect(data.symbol).toEqual(nativeAsset.symbol);
+    expect(data.balance).toBeGreaterThan(0);
+  });
 
-  // it(`Delete assets/:id`, async () => {});
+  it(`/GET assets/:id invalid objectid`, async () => {
+    await axios.get(`${url}/123`).catch((err) => {
+      expect(err.response.data.statusCode).toEqual(400);
+      expect(err.response.data.message).toEqual('Invalid ObjectId');
+    });
+  });
 
-  // afterAll(async () => {});
+  it(`/GET assets/:id not found`, async () => {
+    await axios.get(`${url}/5e6c3d3c3b3f8f1c1c6c3d3c`).catch((err) => {
+      expect(err.response.data.statusCode).toEqual(404);
+      expect(err.response.data.message).toEqual('Asset not found');
+    });
+  });
+
+  it(`Patch assets/:id`, async () => {
+    const { status, data } = await axios.patch(
+      `${url}/${assetID}`,
+      {
+        name: 'Gold',
+      },
+      {
+        auth,
+      },
+    );
+    expect(status).toEqual(200);
+    expect(data.name).toEqual('Gold');
+    expect(data.address).toEqual(asset.address);
+    expect(data.symbol).toEqual(asset.symbol);
+    expect(data.balance).toBeGreaterThan(0);
+  });
+
+  it(`Delete assets/:id`, async () => {
+    const { status: statusDel } = await axios.delete(`${url}/${assetID}`, {
+      auth,
+    });
+    expect(statusDel).toEqual(204);
+
+    const { status, data } = await axios.get(url);
+    expect(status).toEqual(200);
+    expect(data.length).toBe(1);
+  });
 });
