@@ -56,9 +56,7 @@ describe('RequestsService', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [
-        ConfigModule.forRoot({
-          envFilePath: '.env.test',
-        }),
+        ConfigModule.forRoot(),
         CacheModule.register(),
         FiroRpcModule,
         AisModule,
@@ -177,7 +175,7 @@ describe('RequestsService', () => {
         '127.0.0.1',
       );
     } catch (error) {
-      expect(error.response.id).toEqual('REACH_LIMIT_IP');
+      expect(error.response.id).toEqual('REACH_LIMIT_ADDRESS');
     }
   });
 
