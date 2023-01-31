@@ -69,7 +69,9 @@ export class RequestsService {
     }
 
     const assetObj = await this.assetModel
-      .findOne({ $or: [{ name: asset }, { symbol: asset }] })
+      .findOne({
+        $or: [{ name: asset }, { symbol: asset }, { address: asset }],
+      })
       .exec();
     if (!assetObj) {
       throw new HttpException('Asset not found', HttpStatus.BAD_REQUEST);
