@@ -122,16 +122,31 @@ describe('Requests', () => {
     expect(typeof data.tx).toBe('string');
   });
 
-  // it(`/POST requestAsset Native Fail`, async () => {
-  //   await axios
-  //     .post(url, {
-  //       address: address.testAddress2,
-  //       asset: nativeAsset.symbol,
-  //     })
-  //     .catch((err) => {
-  //       console.log(err);
-  //     });
-  // });
+  it(`/POST requestAsset Native Fail`, async () => {
+    await axios
+      .post(url, {
+        address: address.testAddress2,
+        asset: nativeAsset.symbol,
+      })
+      .catch((err) => {
+        expect(err.response.status).toEqual(400);
+        expect(err.response.data.id).toEqual('REACH_LIMIT_ADDRESS');
+        expect(err.response.data.reason).toEqual('the address reach limit');
+      });
+  });
+
+  it(`/POST request Asset Fail`, async () => {
+    await axios
+      .post(url, {
+        address: address.testAddress3,
+        asset: goldAsset.symbol,
+      })
+      .catch((err) => {
+        expect(err.response.status).toEqual(400);
+        expect(err.response.data.id).toEqual('REACH_LIMIT_IP');
+        expect(err.response.data.reason).toEqual('the IP reach limit');
+      });
+  });
 
   afterAll(async () => {
     const { status, data } = await axios.get(urlAssets);
