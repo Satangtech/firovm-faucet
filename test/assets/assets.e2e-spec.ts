@@ -14,6 +14,7 @@ import {
 } from '../data';
 
 describe('Assets', () => {
+  jest.setTimeout(60 * 1000);
   const auth = {
     username: 'admin',
     password: 'admin',
@@ -78,7 +79,6 @@ describe('Assets', () => {
   };
 
   beforeAll(async () => {
-    jest.setTimeout(180 * 1000);
     await loadWallet();
     await deployContractERC20();
   });
