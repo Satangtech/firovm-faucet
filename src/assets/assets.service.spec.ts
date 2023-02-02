@@ -43,13 +43,7 @@ describe('AssetService', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      imports: [
-        ConfigModule.forRoot({
-          envFilePath: '.env.test',
-        }),
-        CacheModule.register(),
-        FiroRpcModule,
-      ],
+      imports: [ConfigModule.forRoot(), CacheModule.register(), FiroRpcModule],
       providers: [
         AssetsService,
         {

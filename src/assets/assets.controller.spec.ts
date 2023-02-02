@@ -9,11 +9,7 @@ describe('AssetsController', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      imports: [
-        ConfigModule.forRoot({
-          envFilePath: '.env.test',
-        }),
-      ],
+      imports: [ConfigModule.forRoot()],
       controllers: [AssetsController],
       providers: [
         {

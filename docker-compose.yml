@@ -11,10 +11,9 @@ services:
       - ./:/app
     ports:
       - 3000:3000
-      - 9229:9229
 
   mongo:
-    image: mongo
+    image: mongo:5
     ports:
       - 27017:27017
     environment:
@@ -24,14 +23,4 @@ services:
     volumes:
       - ./.mongo/db:/data/db
       - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js
-    command: --profile=1 --slowms=20 # for operations that take longer than (ms)
-
-  mongo-test:
-    image: mongo
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: root
-      MONGO_INITDB_DATABASE: faucet-test
-    volumes:
-      - ./mongo-init-test.js:/docker-entrypoint-initdb.d/mongo-init-test.js
     command: --profile=1 --slowms=20 # for operations that take longer than (ms)

@@ -46,19 +46,10 @@ export class RequestsService {
       );
     }
 
-    const cacheIpAsset = await this.cacheManager.get(ip);
-    if (cacheIpAsset && cacheIpAsset === asset) {
-      throw new HttpException(
-        {
-          id: 'REACH_LIMIT_IP',
-          reason: 'the IP reach limit',
-        },
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-
-    const cacheAddressAsset = await this.cacheManager.get(address);
-    if (cacheAddressAsset && cacheAddressAsset === asset) {
+    const cacheAddressAsset: Array<string> = await this.cacheManager.get(
+      address,
+    );
+    if (cacheAddressAsset && cacheAddressAsset.includes(asset)) {
       throw new HttpException(
         {
           id: 'REACH_LIMIT_ADDRESS',
@@ -68,8 +59,21 @@ export class RequestsService {
       );
     }
 
+    const cacheIpAsset: Array<string> = await this.cacheManager.get(ip);
+    if (cacheIpAsset && cacheIpAsset.includes(asset)) {
+      throw new HttpException(
+        {
+          id: 'REACH_LIMIT_IP',
+          reason: 'the IP reach limit',
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
     const assetObj = await this.assetModel
-      .findOne({ $or: [{ name: asset }, { symbol: asset }] })
+      .findOne({
+        $or: [{ name: asset }, { symbol: asset }, { address: asset }],
+      })
       .exec();
     if (!assetObj) {
       throw new HttpException('Asset not found', HttpStatus.BAD_REQUEST);
@@ -88,12 +92,12 @@ export class RequestsService {
 
     await this.cacheManager.set(
       ip,
-      asset,
+      cacheIpAsset !== undefined ? [...cacheIpAsset, asset] : [asset],
       60 * 60 * this.configService.get<number>('REACH_LIMIT_HOUR'),
     );
     await this.cacheManager.set(
       address,
-      asset,
+      cacheAddressAsset !== undefined ? [...cacheAddressAsset, asset] : [asset],
       60 * 60 * this.configService.get<number>('REACH_LIMIT_HOUR'),
     );
     return tx;

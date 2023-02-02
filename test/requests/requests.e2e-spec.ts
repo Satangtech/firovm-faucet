@@ -1,144 +1,163 @@
-import { HttpModule } from '@nestjs/axios';
-import { CacheModule, HttpStatus, INestApplication } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
-import { Test } from '@nestjs/testing';
-import mongoose, { Model } from 'mongoose';
-import * as request from 'supertest';
-import { AisService } from '../../src/ais/ais.service';
-
-import { assetsProviders } from '../../src/assets/assets.providers';
-import { Asset } from '../../src/assets/interfaces/asset.interface';
-import { FiroRpcService } from '../../src/firo-rpc/firo-rpc.service';
-import { RequestsController } from '../../src/requests/requests.controller';
-import { RequestsService } from '../../src/requests/requests.service';
+import axios from 'axios';
+import {
+  Client,
+  Context,
+  Network,
+  PrivkeyAccount,
+  RPCClient,
+} from 'firovm-sdk';
+import {
+  abiERC20,
+  byteCodeContractERC20,
+  testAddresses,
+  testPrivkeys,
+} from '../data';
 
 describe('Requests', () => {
-  let app: INestApplication;
-  let model: Model<Asset>;
-  const masqueData = {
-    resultCode: '20000',
-    resultDescription: 'Success',
-    data: {
-      individualId: 'ais_idp_name:test001',
-      accountAddress: 'TKijwvuy2shFcKtdTsjvXjCB9fqrbJqdFK',
-      status: 'Active',
-      description: '10Set',
-      masqueId: 'test001',
-      name: 'test001',
-      requestId: '637b38afd498ac2c2d286ec0',
-      thumbnail:
-        'https://masque-dev.adldigitalservice.com/api/v3/masque/Image/637b38afd498ac2c2d286ec0/png',
-      displayPic:
-        'https://masque-dev.adldigitalservice.com/api/v3/masque/Image/637b38afd498ac2c2d286ec0/display',
-      gltf: 'https://masque-dev.adldigitalservice.com/api/v3/masque/Image/637b38afd498ac2c2d286ec0/gltf',
-      link: 'https://masque-dev.adldigitalservice.com/public/view/637b38afd498ac2c2d286ec0',
-    },
+  jest.setTimeout(60 * 1000);
+  const auth = {
+    username: 'admin',
+    password: 'admin',
   };
-  const txNative = 'txNative';
-  const txToken = 'txToken';
-  const dataNative = {
-    asset: 'native',
+  const nativeAsset = {
+    name: 'Native',
     address: '',
+    symbol: 'FVM',
+    logo: 'https://fvm.org/logo.png',
+    decimal: 1e8,
   };
-  const dataToken = {
-    asset: 'token',
-    address: 'addr1',
+  const goldAsset = {
+    name: 'GOLD',
+    address: '',
+    symbol: 'GLD',
+    logo: 'https://gold.org/logo.png',
+    decimal: 1e18,
   };
-  const mockAsset = {
-    native: {
-      name: 'asset1',
-      balance: 100,
-      address: '',
-      symbol: 'symbol1',
-      logo: 'logo1',
-      decimal: 1e18,
-    },
-    token: {
-      name: 'asset2',
-      balance: 100,
-      address: 'address2',
-      symbol: 'symbol2',
-      logo: 'logo2',
-      decimal: 1e18,
-    },
+  let txid = '';
+
+  const url = 'http://faucet:3000/requests';
+  const urlAssets = 'http://faucet:3000/assets';
+  const urlFirovm = new URL('http://test:test@firovm:1234');
+  const rpcClient = new RPCClient(urlFirovm.href);
+  const client = new Client(urlFirovm.href);
+  const address = testAddresses;
+  const privkey = testPrivkeys;
+  const context = new Context().withNetwork(Network.Testnet);
+  const account = {
+    acc1: new PrivkeyAccount(context, privkey.testPrivkey1),
+    acc2: new PrivkeyAccount(context, privkey.testPrivkey2),
+    acc3: new PrivkeyAccount(context, privkey.testPrivkey3),
+    acc4: new PrivkeyAccount(context, privkey.testPrivkey4),
+    acc5: new PrivkeyAccount(context, privkey.testPrivkey5),
   };
 
-  const databaseProviders = {
-    provide: 'DATABASE_CONNECTION',
-    useFactory: (): Promise<typeof mongoose> =>
-      mongoose.connect(process.env.MONGO_URL),
+  const loadWallet = async () => {
+    await rpcClient.rpc('loadwallet', ['testwallet']);
   };
 
-  const firoRpcService = {
-    provide: FiroRpcService,
-    useValue: {
-      nativeTransfer: jest.fn().mockResolvedValue(txNative),
-      tokenTransfer: jest.fn().mockResolvedValue(txToken),
-    },
+  const generateToAddress = async () => {
+    const res = await rpcClient.rpc('generatetoaddress', [
+      1,
+      address.testAddress1,
+    ]);
+    expect(res.result.length).toBeGreaterThan(0);
   };
 
-  const aisService = {
-    provide: AisService,
-    useValue: {
-      getAddressFromMasqueId: jest.fn().mockResolvedValue(masqueData),
-    },
+  const deployContractERC20 = async () => {
+    const contract = new client.Contract(abiERC20);
+    const contractDeploy = contract.deploy(byteCodeContractERC20);
+    txid = await contractDeploy.send({ from: account.acc1 });
+    expect(typeof txid).toBe('string');
+    await generateToAddress();
+
+    const { result, error } = await rpcClient.getTransactionReceipt(txid);
+    expect(error).toBeNull();
+    expect(result.length).toBeGreaterThan(0);
+    expect(typeof result[0].contractAddress).toBe('string');
+    goldAsset.address = result[0].contractAddress;
+  };
+
+  const createAssets = async () => {
+    await axios
+      .post(urlAssets, nativeAsset, {
+        auth,
+      })
+      .catch((err) => {
+        // pass
+      });
+    await axios
+      .post(urlAssets, goldAsset, {
+        auth,
+      })
+      .catch((err) => {
+        // pass
+      });
   };
 
   beforeAll(async () => {
-    const module = await Test.createTestingModule({
-      imports: [
-        HttpModule,
-        ConfigModule.forRoot({
-          envFilePath: '.env.test',
-        }),
-        CacheModule.register(),
-      ],
-      controllers: [RequestsController],
-      providers: [
-        RequestsService,
-        ...assetsProviders,
-        databaseProviders,
-        firoRpcService,
-        aisService,
-      ],
-    }).compile();
+    await loadWallet();
+    await deployContractERC20();
+    await createAssets();
+  });
 
-    app = module.createNestApplication();
-    await app.init();
-    model = module.get<Model<Asset>>('ASSET_MODEL');
+  beforeEach(async () => {
+    await generateToAddress();
   });
 
   it(`/POST requestAsset Native`, async () => {
-    jest.spyOn(model, 'findOne').mockReturnValue({
-      exec: jest.fn().mockResolvedValueOnce(mockAsset.native),
-    } as any);
-
-    return request(app.getHttpServer())
-      .post('/requests')
-      .send(dataNative)
-      .then((res) => {
-        expect(res.status).toEqual(HttpStatus.OK);
-        expect(res.body.tx).toEqual(txNative);
-      });
+    const { status, data } = await axios.post(url, {
+      address: address.testAddress2,
+      asset: nativeAsset.symbol,
+    });
+    expect(status).toEqual(200);
+    expect(typeof data.tx).toBe('string');
   });
 
   it(`/POST requestAsset Token`, async () => {
-    jest.spyOn(model, 'findOne').mockReturnValue({
-      exec: jest.fn().mockResolvedValueOnce(mockAsset.token),
-    } as any);
+    const { status, data } = await axios.post(url, {
+      address: address.testAddress2,
+      asset: goldAsset.symbol,
+    });
+    expect(status).toEqual(200);
+    expect(typeof data.tx).toBe('string');
+  });
 
-    return request(app.getHttpServer())
-      .post('/requests')
-      .send(dataToken)
-      .then((res) => {
-        expect(res.status).toEqual(HttpStatus.OK);
-        expect(res.body.tx).toEqual(txToken);
+  it(`/POST requestAsset Native Fail`, async () => {
+    await axios
+      .post(url, {
+        address: address.testAddress2,
+        asset: nativeAsset.symbol,
+      })
+      .catch((err) => {
+        expect(err.response.status).toEqual(400);
+        expect(err.response.data.id).toEqual('REACH_LIMIT_ADDRESS');
+        expect(err.response.data.reason).toEqual('the address reach limit');
+      });
+  });
+
+  it(`/POST request Asset Fail`, async () => {
+    await axios
+      .post(url, {
+        address: address.testAddress3,
+        asset: goldAsset.symbol,
+      })
+      .catch((err) => {
+        expect(err.response.status).toEqual(400);
+        expect(err.response.data.id).toEqual('REACH_LIMIT_IP');
+        expect(err.response.data.reason).toEqual('the IP reach limit');
       });
   });
 
   afterAll(async () => {
-    await mongoose.connection.db.dropCollection('assets');
-    await mongoose.disconnect();
-    await app.close();
+    const { status, data } = await axios.get(urlAssets);
+    expect(status).toEqual(200);
+    if (data.length > 0) {
+      for (const asset of data) {
+        const { status } = await axios.delete(`${urlAssets}/${asset._id}`, {
+          auth,
+        });
+        expect(status).toEqual(204);
+      }
+    }
   });
 });
