@@ -4,7 +4,7 @@ This is a simple faucet for Firovm. It is a simple web application that allows y
 
 - Config user and password for mongodb `mongo-init.js`
 
-- Change user and password for root mongodb `MONGO_INITDB_ROOT_USERNAME`, `MONGO_INITDB_ROOT_PASSWORD` in `docker-compose.yml` and `docker-compose.dev.yml`
+- Change user and password for root mongodb `MONGO_INITDB_ROOT_USERNAME`, `MONGO_INITDB_ROOT_PASSWORD` in `docker-compose.yml`
 
 - Copy the file `.env.example` to `.env` and edit the file to your needs.
 
@@ -17,7 +17,20 @@ cp .env.example .env
 ```bash
 # for test on local
 docker compose up -d
+```
 
-# for development server
-docker compose -f docker-compose.dev.yml up -d
+## Start testing
+
+```bash
+# Terminal 1
+yarn test:up
+
+# Terminal 2
+yarn test:it
+```
+
+## Stop testing
+
+```bash
+yarn test:down
 ```
