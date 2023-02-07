@@ -2,7 +2,7 @@ version: '3'
 
 services:
   faucet:
-    build: .
+    image: asia.gcr.io/firovm-faucet/firovm-faucet:0.0.1
     volumes:
       - ./.env:/app/.env
     depends_on:
@@ -20,7 +20,7 @@ services:
     command: --profile=1 --slowms=20 # for operations that take longer than (ms)
 
   e2e-test:
-    build: .
+    image: asia.gcr.io/firovm-faucet/firovm-faucet:0.0.1
     command: yarn test:e2e
     volumes:
       - ./.env:/app/.env
@@ -28,13 +28,12 @@ services:
       - faucet
 
   firovm:
-    image: satangtech/firovm-poa:4e0cb5d3019b081d1cd696b4f1bfa709ff5257d2
+    image: satangtech/firovm-poa:9139c0a7560a8e03be0852c33b94acefcfc4887b
     tty: true
     stdin_open: true
-    working_dir: /root
     command: bash -c "tar xfv firovm.tar && firovmd"
     volumes:
-      - ./firovm.tar:/root/firovm.tar
+      - ./firovm.tar:/home/firovm/firovm.tar
     ports:
       - 1234:1234
       - 11000:11000
