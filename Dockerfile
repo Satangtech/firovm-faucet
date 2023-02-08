@@ -1,10 +1,15 @@
 FROM node:18
+
+RUN useradd -ms /bin/bash faucet
+USER faucet
+
 WORKDIR /app
+RUN chown -R faucet:faucet /app
 
 COPY package.json yarn.lock ./
 RUN yarn install
 
-COPY . .
+COPY --chown=faucet:faucet . .
 RUN yarn build
 
 EXPOSE 3000
