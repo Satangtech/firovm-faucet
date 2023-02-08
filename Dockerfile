@@ -6,7 +6,7 @@ USER faucet
 WORKDIR /app
 RUN chown -R faucet:faucet /app
 
-COPY package.json yarn.lock ./
+COPY --chown=faucet:faucet package.json yarn.lock ./
 RUN yarn install
 
 COPY --chown=faucet:faucet . .
