@@ -2,7 +2,7 @@ version: '3'
 
 services:
   faucet:
-    image: asia.gcr.io/firovm-faucet/firovm-faucet:0.0.1
+    build: .
     volumes:
       - ./.env:/app/.env
     depends_on:
@@ -20,7 +20,7 @@ services:
     command: --profile=1 --slowms=20 # for operations that take longer than (ms)
 
   e2e-test:
-    image: asia.gcr.io/firovm-faucet/firovm-faucet:0.0.1
+    build: .
     command: yarn test:e2e
     volumes:
       - ./.env:/app/.env
