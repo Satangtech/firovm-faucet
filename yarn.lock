@@ -4176,10 +4176,10 @@ find-up@^5.0.0:
     locate-path "^6.0.0"
     path-exists "^4.0.0"
 
-firovm-sdk@0.0.12-alpha:
-  version "0.0.12-alpha"
-  resolved "https://registry.yarnpkg.com/firovm-sdk/-/firovm-sdk-0.0.12-alpha.tgz#b8b21cf02faced122a8d64078501a1045cb9961c"
-  integrity sha512-Bw1BmjgR429Tzg1tlpw/vtdUiMD183ygxwzrW2h2kp6siYWYa2CSNmTEGMB25O3TGs9y0GaQcX5dbGLY7KalSw==
+firovm-sdk@0.0.15-alpha:
+  version "0.0.15-alpha"
+  resolved "https://registry.yarnpkg.com/firovm-sdk/-/firovm-sdk-0.0.15-alpha.tgz#3c58b7ffb35b2c34a4fc7cfbe750feb55874590b"
+  integrity sha512-QHWPjRb8vzUA6x9Ux1q2OE8/YCTKmFSy7FHvHeGYnrEei1PPogkw30De7K5z2zEQomygf6QGH05oEngFnO/nqA==
   dependencies:
     "@noble/secp256k1" "^1.6.3"
     "@types/lodash" "^4.14.178"
@@ -4188,7 +4188,7 @@ firovm-sdk@0.0.12-alpha:
     bip39 "^3.0.4"
     decimal.js "^10.3.1"
     ethjs-unit "^0.1.6"
-    fvmcore-lib "https://gitpkg.now.sh/Satangtech/bitcore/packages/bitcore-lib-fvm?145f53ba9e754dbfc3c19be9b3911021fbdb8d70"
+    fvmcore-lib "https://gitpkg.now.sh/Satangtech/bitcore/packages/bitcore-lib-fvm?200df28c2b1bfeaba3d4be6d9022db4bed785ea9"
     nock "^13.2.1"
     node-fetch "^2.6.6"
     web3 "^1.6.1"
@@ -4331,9 +4331,9 @@ function-bind@^1.1.1:
   resolved "https://registry.yarnpkg.com/function-bind/-/function-bind-1.1.1.tgz#a56899d3ea3c9bab874bb9773b7c5ede92f4895d"
   integrity sha512-yIovAzMX49sF8Yl58fSCWJ5svSLuaibPxXQJFLmBObTuCr0Mf1KiPopGM9NiFjiYBCbfaa2Fh6breQ6ANVTI0A==
 
-"fvmcore-lib@https://gitpkg.now.sh/Satangtech/bitcore/packages/bitcore-lib-fvm?145f53ba9e754dbfc3c19be9b3911021fbdb8d70":
+"fvmcore-lib@https://gitpkg.now.sh/Satangtech/bitcore/packages/bitcore-lib-fvm?200df28c2b1bfeaba3d4be6d9022db4bed785ea9":
   version "8.25.25"
-  resolved "https://gitpkg.now.sh/Satangtech/bitcore/packages/bitcore-lib-fvm?145f53ba9e754dbfc3c19be9b3911021fbdb8d70#41308e7f63600d370ad1fba5b28cb534e510e65f"
+  resolved "https://gitpkg.now.sh/Satangtech/bitcore/packages/bitcore-lib-fvm?200df28c2b1bfeaba3d4be6d9022db4bed785ea9#9d4f12cd41a7b4350121514f64719a340950ac56"
   dependencies:
     bech32 "=2.0.0"
     bip-schnorr "=0.6.4"

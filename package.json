@@ -22,10 +22,10 @@
     "test:log-faucet": "docker compose -f docker-compose.test.yml logs -f faucet",
     "test:build:faucet": "docker compose -f docker-compose.test.yml build faucet",
     "test:build:e2e": "docker compose -f docker-compose.test.yml build e2e-test",
-    "test:up": "tar xfv firovm.tar && yarn test:build:faucet && docker compose -f docker-compose.test.yml up -d faucet && yarn test:log-faucet",
+    "test:up": "bash checksum_verification.sh && tar xfv firovm.tar && yarn test:build:faucet && docker compose -f docker-compose.test.yml up -d faucet && yarn test:log-faucet",
     "test:it": "docker compose -f docker-compose.test.yml up --build e2e-test",
-    "test:down": "rm -rf .firovm && docker compose -f docker-compose.test.yml down -v && yarn rm:none",
-    "rm:none": "docker rmi $(docker images -f \"dangling=true\" -q)"
+    "test:down": "rm -rf .firovm && docker compose -f docker-compose.test.yml down -v && yarn rm:dangling",
+    "rm:dangling": "if [ -n \"$(docker images -f \"dangling=true\" -q)\" ]; then docker rmi $(docker images -f \"dangling=true\" -q); else echo \"No images found\"; fi"
   },
   "dependencies": {
     "@nestjs/axios": "^1.0.0",
@@ -40,7 +40,7 @@
     "cache-manager": "4.1.0",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.13.2",
-    "firovm-sdk": "0.0.12-alpha",
+    "firovm-sdk": "0.0.15-alpha",
     "joi": "^17.6.1",
     "mongoose": "^6.6.2",
     "passport": "^0.6.0",
