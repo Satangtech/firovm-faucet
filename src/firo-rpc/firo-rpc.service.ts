@@ -54,7 +54,7 @@ export class FiroRpcService {
         throw new HttpException(error.message, 500);
       }
       return result.balance;
-    } catch (error) {
+    } catch (error: any) {
       throw new HttpException(error.message, 500);
     }
   }
@@ -69,7 +69,7 @@ export class FiroRpcService {
         throw new HttpException(error.message, 500);
       }
       return result;
-    } catch (error) {
+    } catch (error: any) {
       throw new HttpException(error.message, 500);
     }
   }
@@ -87,7 +87,7 @@ export class FiroRpcService {
         BigInt(this.faucetAmount * tokenDecimal),
       );
       return txId;
-    } catch (error) {
+    } catch (error: any) {
       throw new HttpException(error.message, 500);
     }
   }
@@ -108,7 +108,7 @@ export class FiroRpcService {
         { feePerKb: 400000 },
       );
       return txId;
-    } catch (error) {
+    } catch (error: any) {
       throw new HttpException(error.message, 500);
     }
   }

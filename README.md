@@ -22,10 +22,6 @@ docker compose up -d
 ## Start testing
 
 ```bash
-# Terminal 1
-yarn test:up
-
-# Terminal 2
 yarn test:it
 ```
 

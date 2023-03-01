@@ -39,7 +39,7 @@ export class RequestsService {
         );
         address = masqueData.data.accountAddress;
       }
-    } catch (error) {
+    } catch (error: any) {
       throw new HttpException(
         JSON.stringify(error.response.data),
         error.response.status,

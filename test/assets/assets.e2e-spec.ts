@@ -52,10 +52,6 @@ describe('Assets', () => {
     acc5: new PrivkeyAccount(context, privkey.testPrivkey5),
   };
 
-  const loadWallet = async () => {
-    await rpcClient.rpc('loadwallet', ['testwallet']);
-  };
-
   const generateToAddress = async () => {
     const res = await rpcClient.rpc('generatetoaddress', [
       1,
@@ -78,9 +74,17 @@ describe('Assets', () => {
     asset.address = result[0].contractAddress;
   };
 
+  const waitForServer = async () => {
+    const { status } = await axios.get(url);
+    if (status !== 200) {
+      await new Promise((resolve) => setTimeout(resolve, 5000));
+      await waitForServer();
+    }
+  };
+
   beforeAll(async () => {
-    await loadWallet();
     await deployContractERC20();
+    await waitForServer();
   });
 
   it(`/POST native assets`, async () => {
