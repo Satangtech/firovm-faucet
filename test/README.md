@@ -55,7 +55,7 @@
 # request
 {
     name: 'GOLD',
-    address: '',
+    address: 'a1a2fb46de7a73b2393e8f8339c6b17f4ac35a83',
     symbol: 'GLD',
     logo: 'https://gold.org/logo.png',
     decimal: 1e18,
