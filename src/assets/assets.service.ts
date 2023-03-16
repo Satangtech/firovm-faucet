@@ -27,7 +27,7 @@ export class AssetsService {
     return createdAsset;
   }
 
-  async findAll(): Promise<Asset[]> {
+  async findAll(noUpdate = false): Promise<Asset[]> {
     const cacheAssets = await this.cacheManager.get('assets');
     if (cacheAssets) {
       this.logger.log('Assets found in cache');
@@ -35,6 +35,10 @@ export class AssetsService {
     }
 
     const assets = await this.assetModel.find().exec();
+    if (noUpdate) {
+      return assets;
+    }
+
     const assetsUpdate = await Promise.all(
       assets.map(async (asset) => {
         let balance = 0;
