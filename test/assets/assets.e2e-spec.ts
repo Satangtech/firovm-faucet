@@ -177,6 +177,25 @@ describe('Assets', () => {
     expect(data.balance).toBeGreaterThan(0);
   });
 
+  it(`/POST assets address no exist`, async () => {
+    const { status, data } = await axios.post(
+      url,
+      { ...asset, address: '123' },
+      {
+        auth,
+      },
+    );
+    expect(status).toEqual(201);
+    expect(data.address).toEqual('123');
+    assetID = data._id;
+  });
+
+  it(`/GET assets with no update`, async () => {
+    const { status, data } = await axios.get(url + '?no-update=true');
+    expect(status).toEqual(200);
+    expect(data.length).toBe(3);
+  });
+
   it(`Delete assets/:id`, async () => {
     const { status: statusDel } = await axios.delete(`${url}/${assetID}`, {
       auth,
@@ -185,6 +204,6 @@ describe('Assets', () => {
 
     const { status, data } = await axios.get(url);
     expect(status).toEqual(200);
-    expect(data.length).toBe(1);
+    expect(data.length).toBe(2);
   });
 });
