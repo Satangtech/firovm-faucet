@@ -15,7 +15,7 @@
     address: '',
     symbol: 'FVM',
     logo: 'https://fvm.org/logo.png',
-    decimal: 100000000,
+    decimal: 8
 }
 ```
 
@@ -27,7 +27,7 @@
     address: '',
     symbol: 'FVM',
     logo: 'https://fvm.org/logo.png',
-    decimal: 100000000,
+    decimal: 8,
     _id: '641188c3af079534b6970ba4',
     __v: 0
 }
@@ -42,7 +42,7 @@
     address: '',
     symbol: 'FVM',
     logo: 'https://fvm.org/logo.png',
-    decimal: 100000000,
+    decimal: 8
 }
 ```
 
@@ -66,7 +66,7 @@
     address: 'a1a2fb46de7a73b2393e8f8339c6b17f4ac35a83',
     symbol: 'GLD',
     logo: 'https://gold.org/logo.png',
-    decimal: 1000000000000000000,
+    decimal: 18,
 }
 ```
 
@@ -78,7 +78,7 @@
     address: 'a1a2fb46de7a73b2393e8f8339c6b17f4ac35a83',
     symbol: 'GLD',
     logo: 'https://gold.org/logo.png',
-    decimal: 1000000000000000000,
+    decimal: 18,
     _id: '641188c3af079534b6970ba8',
     __v: 0
 }
@@ -96,7 +96,7 @@
     address: '',
     symbol: 'FVM',
     logo: 'https://fvm.org/logo.png',
-    decimal: 100000000,
+    decimal: 8,
     __v: 0
   },
   {
@@ -106,7 +106,7 @@
     address: 'a1a2fb46de7a73b2393e8f8339c6b17f4ac35a83',
     symbol: 'GLD',
     logo: 'https://gold.org/logo.png',
-    decimal: 1000000000000000000,
+    decimal: 18,
     __v: 0
   }
 ]
@@ -124,7 +124,7 @@
     address: '',
     symbol: 'FVM',
     logo: 'https://fvm.org/logo.png',
-    decimal: 100000000,
+    decimal: 8,
     __v: 0
   },
   {
@@ -134,7 +134,7 @@
     address: 'a1a2fb46de7a73b2393e8f8339c6b17f4ac35a83',
     symbol: 'GLD',
     logo: 'https://gold.org/logo.png',
-    decimal: 1000000000000000000,
+    decimal: 18,
     __v: 0
   }
 ]
@@ -153,7 +153,7 @@
   address: 'a1a2fb46de7a73b2393e8f8339c6b17f4ac35a83',
   symbol: 'GLD',
   logo: 'https://gold.org/logo.png',
-  decimal: 1000000000000000000,
+  decimal: 18,
   __v: 0
 }
 ```
@@ -169,7 +169,7 @@
   address: '',
   symbol: 'FVM',
   logo: 'https://fvm.org/logo.png',
-  decimal: 100000000,
+  decimal: 8,
   __v: 0
 }
 ```
@@ -213,7 +213,7 @@
   address: 'a1a2fb46de7a73b2393e8f8339c6b17f4ac35a83',
   symbol: 'GLD',
   logo: 'https://gold.org/logo.png',
-  decimal: 1000000000000000000,
+  decimal: 18,
   __v: 0
 }
 ```
@@ -230,7 +230,7 @@
     address: '',
     symbol: 'FVM',
     logo: 'https://fvm.org/logo.png',
-    decimal: 100000000,
+    decimal: 8,
     __v: 0
   }
 ]
