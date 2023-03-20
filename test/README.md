@@ -112,6 +112,34 @@
 ]
 ```
 
+- `GET /assets/all` get all assets without update balance from blockchain
+
+```bash
+# Example Response
+[
+  {
+    _id: '641188c3af079534b6970ba4',
+    name: 'Native',
+    balance: 4042000000000000,
+    address: '',
+    symbol: 'FVM',
+    logo: 'https://fvm.org/logo.png',
+    decimal: 100000000,
+    __v: 0
+  },
+  {
+    _id: '641188c3af079534b6970ba8',
+    name: 'GOLD',
+    balance: 10000,
+    address: 'a1a2fb46de7a73b2393e8f8339c6b17f4ac35a83',
+    symbol: 'GLD',
+    logo: 'https://gold.org/logo.png',
+    decimal: 1000000000000000000,
+    __v: 0
+  }
+]
+```
+
 - `GET /assets/:id` get asset by id
 
   - `:id` is field `_id` of asset
