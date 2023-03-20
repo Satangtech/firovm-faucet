@@ -16,7 +16,7 @@ const mockAsset = [
     address: '',
     symbol: 'symbol1',
     logo: 'logo1',
-    decimal: 1e18,
+    decimal: 18,
   },
   {
     name: 'asset2',
@@ -24,7 +24,7 @@ const mockAsset = [
     address: 'address2',
     symbol: 'symbol2',
     logo: 'logo2',
-    decimal: 1e18,
+    decimal: 18,
   },
 ];
 
@@ -174,7 +174,7 @@ describe('RequestsService', () => {
         { asset: 'asset1', address: 'addr1' },
         '127.0.0.1',
       );
-    } catch (error) {
+    } catch (error: any) {
       expect(error.response.id).toEqual('REACH_LIMIT_ADDRESS');
     }
   });
@@ -199,7 +199,7 @@ describe('RequestsService', () => {
         { asset: 'asset1', address: 'addr1' },
         '127.0.0.2',
       );
-    } catch (error) {
+    } catch (error: any) {
       expect(error.response.id).toEqual('REACH_LIMIT_ADDRESS');
     }
   });
