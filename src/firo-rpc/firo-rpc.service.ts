@@ -84,7 +84,7 @@ export class FiroRpcService {
         this.account,
         tokenAddress,
         nativeAddress,
-        BigInt(this.faucetAmount * tokenDecimal),
+        BigInt(this.faucetAmount) * BigInt(10) ** BigInt(tokenDecimal),
       );
       return txId;
     } catch (error: any) {
@@ -102,7 +102,7 @@ export class FiroRpcService {
         [
           {
             to: nativeAddress as string,
-            value: this.faucetAmount * tokenDecimal,
+            value: this.faucetAmount * 10 ** tokenDecimal,
           },
         ],
         { feePerKb: 400000 },
