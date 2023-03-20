@@ -191,7 +191,7 @@ describe('Assets', () => {
   });
 
   it(`/GET assets with no update`, async () => {
-    const { status, data } = await axios.get(url + '?no-update=true');
+    const { status, data } = await axios.get(url + '/all');
     expect(status).toEqual(200);
     expect(data.length).toBe(3);
   });

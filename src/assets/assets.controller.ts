@@ -9,7 +9,6 @@ import {
   Param,
   Patch,
   Post,
-  Query,
   UseFilters,
   UseGuards,
 } from '@nestjs/common';
@@ -26,8 +25,13 @@ export class AssetsController {
   constructor(private assetsService: AssetsService) {}
 
   @Get()
-  findAll(@Query('no-update') noUpdate): Promise<Asset[]> {
-    return this.assetsService.findAll(noUpdate);
+  findAll(): Promise<Asset[]> {
+    return this.assetsService.findAll();
+  }
+
+  @Get('/all')
+  getAssets(): Promise<Asset[]> {
+    return this.assetsService.getAssets();
   }
 
   @Get(':id')
