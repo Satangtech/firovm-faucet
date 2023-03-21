@@ -29,6 +29,11 @@ export class AssetsController {
     return this.assetsService.findAll();
   }
 
+  @Get('/all')
+  getAssets(): Promise<Asset[]> {
+    return this.assetsService.getAssets();
+  }
+
   @Get(':id')
   async findOne(@Param('id', ParseObjectIdPipe) id: string): Promise<Asset> {
     const asset = await this.assetsService.findOne(id);

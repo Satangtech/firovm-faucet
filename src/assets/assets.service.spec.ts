@@ -14,7 +14,7 @@ const mockAsset = {
   address: 'address1',
   symbol: 'symbol1',
   logo: 'logo1',
-  decimal: 1e18,
+  decimal: 18,
 };
 
 const assetsArray = [
@@ -32,7 +32,7 @@ const assetsArray = [
     address: 'address1',
     symbol: 'symbol1',
     logo: 'logo1',
-    decimal: 1e18,
+    decimal: 18,
   },
 ];
 

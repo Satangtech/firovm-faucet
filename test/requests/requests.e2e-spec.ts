@@ -24,14 +24,14 @@ describe('Requests', () => {
     address: '',
     symbol: 'FVM',
     logo: 'https://fvm.org/logo.png',
-    decimal: 1e8,
+    decimal: 8,
   };
   const goldAsset = {
     name: 'GOLD',
     address: '',
     symbol: 'GLD',
     logo: 'https://gold.org/logo.png',
-    decimal: 1e18,
+    decimal: 18,
   };
   let txid = '';
 

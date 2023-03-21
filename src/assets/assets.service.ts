@@ -27,6 +27,10 @@ export class AssetsService {
     return createdAsset;
   }
 
+  async getAssets(): Promise<Asset[]> {
+    return await this.assetModel.find().exec();
+  }
+
   async findAll(): Promise<Asset[]> {
     const cacheAssets = await this.cacheManager.get('assets');
     if (cacheAssets) {

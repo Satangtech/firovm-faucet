@@ -24,14 +24,14 @@ describe('Assets', () => {
     address: '',
     symbol: 'FVM',
     logo: 'https://fvm.org/logo.png',
-    decimal: 1e8,
+    decimal: 8,
   };
   const asset = {
     name: 'GOLD',
     address: '',
     symbol: 'GLD',
     logo: 'https://gold.org/logo.png',
-    decimal: 1e18,
+    decimal: 18,
   };
   let assetID = '';
   let nativeAssetID = '';
@@ -177,6 +177,25 @@ describe('Assets', () => {
     expect(data.balance).toBeGreaterThan(0);
   });
 
+  it(`/POST assets address no exist`, async () => {
+    const { status, data } = await axios.post(
+      url,
+      { ...asset, address: '123' },
+      {
+        auth,
+      },
+    );
+    expect(status).toEqual(201);
+    expect(data.address).toEqual('123');
+    assetID = data._id;
+  });
+
+  it(`/GET assets with no update`, async () => {
+    const { status, data } = await axios.get(url + '/all');
+    expect(status).toEqual(200);
+    expect(data.length).toBe(3);
+  });
+
   it(`Delete assets/:id`, async () => {
     const { status: statusDel } = await axios.delete(`${url}/${assetID}`, {
       auth,
@@ -185,6 +204,6 @@ describe('Assets', () => {
 
     const { status, data } = await axios.get(url);
     expect(status).toEqual(200);
-    expect(data.length).toBe(1);
+    expect(data.length).toBe(2);
   });
 });

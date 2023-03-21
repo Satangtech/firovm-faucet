@@ -22,7 +22,7 @@ describe('AssetsController', () => {
                 address: 'address1',
                 symbol: 'symbol1',
                 logo: 'logo1',
-                decimal: 1e18,
+                decimal: 18,
               },
             ]),
             create: jest
@@ -49,7 +49,7 @@ describe('AssetsController', () => {
         address: 'address1',
         symbol: 'symbol1',
         logo: 'logo1',
-        decimal: 1e18,
+        decimal: 18,
       };
 
       expect(controller.create(createAssetDto)).resolves.toEqual({
@@ -68,7 +68,7 @@ describe('AssetsController', () => {
           address: 'address1',
           symbol: 'symbol1',
           logo: 'logo1',
-          decimal: 1e18,
+          decimal: 18,
         },
       ]);
     });

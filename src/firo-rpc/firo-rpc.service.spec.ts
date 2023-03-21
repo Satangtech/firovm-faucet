@@ -38,7 +38,7 @@ describe('FiroRpcService', () => {
   it('should get txid from token transfer', async () => {
     const tokenAddress = '72883952c2efc7ce8d8b992dfea575719b750dc6';
     const nativeAddress = 'TKijwvuy2shFcKtdTsjvXjCB9fqrbJqdFK';
-    const tokenDecimal = 1e18;
+    const tokenDecimal = 18;
     jest
       .spyOn(service, 'tokenTransfer')
       .mockReturnValue(Promise.resolve('txid'));
