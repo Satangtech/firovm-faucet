@@ -8,6 +8,8 @@ This is a simple faucet for Firovm. It is a simple web application that allows y
 
 - Copy the file `.env.example` to `.env` and edit the file to your needs.
 
+- Download firovm.tar from [firovm.tar](https://satangcom-my.sharepoint.com/:u:/g/personal/chitrathep_satang_com/EbEHR4R8oGNCuIEY1TTowQgBET1NRK5rKU5qh0zNt_FNtA?e=VWNqMn) and change filename to firovm.tar
+
 ```bash
 cp .env.example .env
 ```
